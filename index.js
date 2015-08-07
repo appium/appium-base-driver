@@ -1,5 +1,5 @@
 // transpile:main
 
 import { BaseDriver } from './lib/driver';
-export { BaseDriver };
-
+import { configureApp } from './lib/helpers';
+export { BaseDriver, configureApp };
