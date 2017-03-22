@@ -69,6 +69,6 @@ describe('MJSONWP', () => {
         const cmdName = routeToCommandName(route, method);
         chai.should().equal(cmdName, undefined);
       }
+    });
   });
-});
 });    
