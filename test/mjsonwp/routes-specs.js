@@ -38,31 +38,30 @@ describe('MJSONWP', () => {
       }
       var hash = shasum.digest('hex').substring(0, 8);
       // Modify the hash whenever the protocol has intentionally been modified.
-      hash.should.equal('ccc996b9');
+      hash.should.equal('be86a90d');
     });
   });
-
   describe('check route to command name conversion', () => {
     it('should properly lookup correct command name for endpoint with session', () => {
       const cmdName = routeToCommandName('/timeouts/implicit_wait', 'POST');
       cmdName.should.equal('implicitWait');
     });
-
+ 
     it('should properly lookup correct command name for endpoint without session', () => {
       const cmdName = routeToCommandName('/status', 'GET');
       cmdName.should.equal('getStatus');
     });
-
+ 
     it('should properly lookup correct command name for endpoint without leading slash', () => {
       const cmdName = routeToCommandName('status', 'GET');
       cmdName.should.equal('getStatus');
     });
-
+ 
     it('should properly lookup correct command name for fully specified endpoint', () => {
       const cmdName = routeToCommandName('/wd/hub/status', 'GET');
       cmdName.should.equal('getStatus');
     });
-
+ 
     it('should not find command name if incorrect input data has been specified', () => {
       for (let [route, method] of [['/wd/hub/status', 'POST'],
                                    ['/xstatus', 'GET'],
@@ -72,5 +71,4 @@ describe('MJSONWP', () => {
       }
     });
   });
-
-});
+});    
