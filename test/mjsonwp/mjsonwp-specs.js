@@ -317,6 +317,7 @@ describe('MJSONWP', async () => {
     });
 
     describe('optional sets of arguments', async () => {
+      let capabilities = {a: 'b'};
       let desiredCapabilities = {a: 'b'};
       let requiredCapabilities = {c: 'd'};
       it('should allow create session with desired caps', async () => {
@@ -340,7 +341,18 @@ describe('MJSONWP', async () => {
         res.status.should.equal(0);
         res.value.should.eql(_.extend({}, desiredCapabilities, requiredCapabilities));
       });
-      it('should fail to create session without desired caps', async () => {
+      it('should allow create session with capabilities', async () => {
+        let res = await request({
+          url: 'http://localhost:8181/wd/hub/session',
+          method: 'POST',
+          json: {
+            capabilities,
+          }
+        });
+        res.status.should.equal(0);
+        res.value.should.eql(capabilities);
+      });
+      it('should fail to create session without desired caps and without capabilities', async () => {
         await request({
           url: 'http://localhost:8181/wd/hub/session',
           method: 'POST',
