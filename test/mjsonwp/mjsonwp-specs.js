@@ -317,9 +317,9 @@ describe('MJSONWP', async () => {
     });
 
     describe('optional sets of arguments', async () => {
-      let capabilities = {a: 'b'};
       let desiredCapabilities = {a: 'b'};
       let requiredCapabilities = {c: 'd'};
+      let capabilities = {e: 'f'};
       it('should allow create session with desired caps', async () => {
         let res = await request({
           url: 'http://localhost:8181/wd/hub/session',
@@ -351,23 +351,6 @@ describe('MJSONWP', async () => {
         });
         res.status.should.equal(0);
         res.value.should.eql(capabilities);
-      });
-      it('should fail to create session without desired caps and without capabilities', async () => {
-        await request({
-          url: 'http://localhost:8181/wd/hub/session',
-          method: 'POST',
-          json: {}
-        }).should.eventually.be.rejectedWith('400');
-      });
-      it('should fail to create session with desired caps and random other stuff', async () => {
-        await request({
-          url: 'http://localhost:8181/wd/hub/session',
-          method: 'POST',
-          json: {
-            desiredCapabilities,
-            randomCapabilitied: {z: '-a'}
-          }
-        }).should.eventually.be.rejectedWith('400');
       });
     });
 
