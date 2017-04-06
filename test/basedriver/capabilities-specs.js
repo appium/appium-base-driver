@@ -2,7 +2,6 @@ import { parseCapabilities, validateCapabilities, mergeCapabilities, processCapa
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
-const should = chai.should();
 chai.use(chaiAsPromised);
 
 describe('capabilities', () => {
@@ -100,59 +99,61 @@ describe('capabilities', () => {
 
   // Tests based on: https://www.w3.org/TR/webdriver/#processing-capabilities
   describe('#parseCapabilities', () => {
-    it('sets "capabilitiesRequest" to property named "capabilities" (1)', () => {
-      let obj = {hello: 'world'};
-      parseCapabilities(obj).capabilitiesRequest.should.deep.equal(obj);
-    });
+    let caps;
 
-    it('returns invalid argument error if "capabilities" is not an object (1.1)', () => {
-      for (let arg of [undefined, null, 1, true, 'string']) {
-        (function (){ parseCapabilities(arg); }).should.throw(/must be a JSON object/); // jshint ignore:line
-      }
+    beforeEach(() => {
+      caps = {};
     });
 
     it('sets "requiredCapabilities" to property named "alwaysMatch" (2)', () => {
-      let obj = {hello: 'world'};
-      parseCapabilities({}, obj).requiredCapabilities.should.deep.equal(obj);
+      caps.alwaysMatch = {hello: 'world'};
+      parseCapabilities(caps).requiredCapabilities.should.deep.equal(caps.alwaysMatch);
     });
 
     it('sets "requiredCapabilities" to empty JSON object if "alwaysMatch" is not an object (2.1)', () => {
-      parseCapabilities({}).requiredCapabilities.should.deep.equal({});
+      parseCapabilities().requiredCapabilities.should.deep.equal({});
     });
 
     it('returns invalid argument error if "requiredCapabilities" don\'t match "constraints" (2.2)', () => {
-      parseCapabilities({}, {}, [{foo: 'string'}], {foo: {isString: true}});
+      caps.alwaysMatch = {foo: 1};
+      (() => parseCapabilities(caps, {foo: {isString: true}})).should.throw(/foo must be of type string/);
     });
 
     it('sets "allFirstMatchCapabilities" to property named "firstMatch" (3)', () => {
-      parseCapabilities({}, {}, []).allFirstMatchCapabilities.should.deep.equal([]);
+      parseCapabilities({}, []).allFirstMatchCapabilities.should.deep.equal([]);
     });
 
     it('sets "allFirstMatchCapabilities" to [] if "firstMatch" is undefined (3.1)', () => {
-      parseCapabilities({}, {}).allFirstMatchCapabilities.should.deep.equal([]);
+      parseCapabilities({}).allFirstMatchCapabilities.should.deep.equal([]);
     });
 
     it('returns invalid argument error if "firstMatch" is not an array and is not undefined (3.2)', () => {
       for (let arg of [null, 1, true, 'string']) {
-        (function (){ parseCapabilities({}, {}, arg); }).should.throw(/must be a JSON array or undefined/); // jshint ignore:line
+        caps.firstMatch = arg;
+        (function (){ parseCapabilities(caps); }).should.throw(/must be a JSON array or undefined/); // jshint ignore:line
       }
     });
 
     it('has "validatedFirstMatchCapabilities" property that is [] by default (4)', () => {
-      parseCapabilities({}).validatedFirstMatchCapabilities.should.deep.equal([]);
+      parseCapabilities().validatedFirstMatchCapabilities.should.deep.equal([]);
     });
 
     describe('returns a "validatedFirstMatchCapabilities" array (5)', () => {
       it('that equals "firstMatch" if firstMatch is one empty object and there are no constraints', () => {
-        parseCapabilities({}, {}, [{}]).validatedFirstMatchCapabilities.should.deep.equal([{}]);
+        caps.firstMatch = [{}];
+        parseCapabilities(caps).validatedFirstMatchCapabilities.should.deep.equal(caps.firstMatch);
       });
 
       it('returns invalid argument error if firstMatch array\'s first argument fails constraints', () => {
-        (() => parseCapabilities({}, {}, [{}], {foo: {presence: true}})).should.throw(/foo can't be blank/);
+        caps.firstMatch = [{}];
+        (() => parseCapabilities(caps, {foo: {presence: true}})).should.throw(/foo can't be blank/);
       });
 
       it('that equals firstMatch if firstMatch contains two objects that pass the provided constraints', () => {
-        let firstMatch = [
+        caps.alwaysMatch = {
+          foo: 'bar'
+        };
+        caps.firstMatch = [
           {foo: 'bar1'},
           {foo: 'bar2'},
         ];
@@ -164,43 +165,50 @@ describe('capabilities', () => {
           }
         };
 
-        parseCapabilities({}, {}, firstMatch, constraints).validatedFirstMatchCapabilities.should.deep.equal(firstMatch);
-      });
-
-      it('returns invalid argument if firstMatch[1] passes constraints and firstMatch[2] fails constraints ', () => {
-        let firstMatch = [{foo: 'bar'}, {dummy: 'dummy'}];
-        let constraints = {foo: {presence: true}};
-        (() => parseCapabilities({}, {}, firstMatch, constraints)).should.throw(/foo can't be blank/);
+        parseCapabilities(caps, constraints).validatedFirstMatchCapabilities.should.deep.equal(caps.firstMatch);
       });
 
       it('returns invalid argument error if the firstMatch[2] is not an object', () => {
-        let firstMatch = [{foo: 'bar'}, 'foo'];
-        (() => parseCapabilities({}, {}, firstMatch, {})).should.throw(/must be a JSON object/);
+        caps.firstMatch = [{foo: 'bar'}, 'foo'];
+        (() => parseCapabilities(caps, {})).should.throw(/must be a JSON object/);
       });
     });
 
     describe('returns a matchedCapabilities object (6)', () => {
-      it('which is undefined by default', () => {
-        should.not.exist(parseCapabilities({}).matchedCapabilities);
+      beforeEach(() => {
+        caps.alwaysMatch = {hello: 'world'};
+      });
+
+      it('which is same as alwaysMatch if firstMatch array is not provided', () => {
+        parseCapabilities(caps).matchedCapabilities.should.deep.equal({hello: 'world'});
       });
 
       it('merges capabilities together', () => {
-        parseCapabilities({}, {hello: 'world'}, [{foo: 'bar'}]).matchedCapabilities.should.deep.equal({hello: 'world', foo: 'bar'});
+        caps.firstMatch = [{foo: 'bar'}];
+        parseCapabilities(caps).matchedCapabilities.should.deep.equal({hello: 'world', foo: 'bar'});
       });
 
       it('with merged capabilities', () => {
-        parseCapabilities({}, {hello: 'world'}, [{hello: 'bar', foo: 'foo'}, {foo: 'bar'}]).matchedCapabilities.should.deep.equal({hello: 'world', foo: 'bar'});
+        caps.firstMatch = [{hello: 'bar', foo: 'foo'}, {foo: 'bar'}];
+        parseCapabilities(caps).matchedCapabilities.should.deep.equal({hello: 'world', foo: 'bar'});
       });
     });
   });
 
   describe('#processCapabilities', () => {
-    it('should return null by default', () => {
-      should.not.exist(processCapabilities({}));
+    it('should return "alwaysMatch" if "firstMatch" and "constraints" were not provided', () => {
+      processCapabilities({}).should.deep.equal({});
+    });
+
+    it('should return invalid argument if no capabilities object provided', () => {
+      (() => processCapabilities()).should.throw(/must be a JSON object/);
     });
 
     it('should return merged capabilities', () => {
-      processCapabilities({}, {hello: 'world'}, [{foo: 'bar'}]).should.deep.equal({hello: 'world', foo: 'bar'});
+      processCapabilities({
+        alwaysMatch: {hello: 'world'}, 
+        firstMatch: [{foo: 'bar'}]
+      }).should.deep.equal({hello: 'world', foo: 'bar'});
     });
   });
 });
