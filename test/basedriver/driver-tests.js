@@ -112,6 +112,10 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       d.driverForSession(sessId).should.eql(d);
     });
 
+    it('should throw an error if we don\'t provide "desiredCapabilities" or "capabilities"', async () => {
+      await d.createSession().should.eventually.be.rejectedWith(/Parameters were incorrect/);
+    });
+
     describe('command queue', () => {
       let d = new DriverClass();
 

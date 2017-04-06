@@ -23,6 +23,10 @@ describe('capabilities', () => {
         (() => validateCapabilities({}, {foo: {presence: true}})).should.throw(/foo can't be blank/);
       });
 
+      it('returns the capability that was passed in if "skipPresenceConstraint" is false', () => {
+        validateCapabilities({}, {foo: {presence: true}}, true).should.deep.equal({});
+      });
+
       it('returns invalid argument error if "isString" constraint not met on property', () => {
         (() => validateCapabilities({foo: 1}, {foo: {isString: true}})).should.throw(/foo must be of type string/);
       });
