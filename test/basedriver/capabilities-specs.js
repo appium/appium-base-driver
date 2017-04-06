@@ -109,13 +109,17 @@ describe('caps', () => {
       caps = {};
     });
 
+    it('should return invalid argument if no caps object provided', () => {
+      (() => parseCaps()).should.throw(/must be a JSON object/);
+    });
+
     it('sets "requiredCaps" to property named "alwaysMatch" (2)', () => {
       caps.alwaysMatch = {hello: 'world'};
       parseCaps(caps).requiredCaps.should.deep.equal(caps.alwaysMatch);
     });
 
     it('sets "requiredCaps" to empty JSON object if "alwaysMatch" is not an object (2.1)', () => {
-      parseCaps().requiredCaps.should.deep.equal({});
+      parseCaps(caps).requiredCaps.should.deep.equal({});
     });
 
     it('returns invalid argument error if "requiredCaps" don\'t match "constraints" (2.2)', () => {
@@ -139,7 +143,7 @@ describe('caps', () => {
     });
 
     it('has "validatedFirstMatchCaps" property that is [] by default (4)', () => {
-      parseCaps().validatedFirstMatchCaps.should.deep.equal([]);
+      parseCaps(caps).validatedFirstMatchCaps.should.deep.equal([]);
     });
 
     describe('returns a "validatedFirstMatchCaps" array (5)', () => {
@@ -202,10 +206,6 @@ describe('caps', () => {
   describe('#processCaps', () => {
     it('should return "alwaysMatch" if "firstMatch" and "constraints" were not provided', () => {
       processCaps({}).should.deep.equal({});
-    });
-
-    it('should return invalid argument if no caps object provided', () => {
-      (() => processCaps()).should.throw(/must be a JSON object/);
     });
 
     it('should return merged caps', () => {
