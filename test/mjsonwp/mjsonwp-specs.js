@@ -352,12 +352,12 @@ describe('MJSONWP', async () => {
         res.status.should.equal(0);
         res.value.should.eql(capabilities);
       });
-      it('should not allow create session if capabilities and desiredCapabilities not provided', async () => {
+      it('should fail to create session without capabilities or desiredCapabilities', async () => {
         await request({
           url: 'http://localhost:8181/wd/hub/session',
           method: 'POST',
           json: {},
-        }).should.eventually.be.rejectedWith(/we require one of/);
+        }).should.eventually.be.rejectedWith('400');
       });
     });
 
