@@ -217,18 +217,32 @@ describe('MJSONWP', async () => {
         json: {id: 'baz', sessionId: 'lol', value: ['a']}
       });
 
-      await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
-        method: 'POST',
-        json: {id: 'baz'}
-      }).should.eventually.be.rejectedWith("400");
-
       // make sure adding the optional 'id' doesn't clobber a route where we
       // have an actual required 'id'
       await request({
         url: 'http://localhost:8181/wd/hub/session/foo/frame',
         method: 'POST',
         json: {id: 'baz'}
+      });
+    });
+
+    it('should properly handle variable payload for set value call', async () => {
+      await request({
+        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+        method: 'POST',
+        json: {sessionId: 'lol'}
+      }).should.eventually.be.rejectedWith("400");
+
+      await request({
+        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+        method: 'POST',
+        json: {sessionId: 'lol', value: ['a'], text: 'bla'}
+      });
+
+      await request({
+        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+        method: 'POST',
+        json: {sessionId: 'lol', text: 'bla'}
       });
     });
 
