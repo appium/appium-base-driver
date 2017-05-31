@@ -113,6 +113,8 @@ POST        | `/wd/hub/session/{sessionId}/appium/start_recording_screen`       
 POST        | `/wd/hub/session/{sessionId}/appium/stop_recording_screen`             | stop recording the screen.
 POST        | `/wd/hub/session/{sessionId}/appium/performanceData/types`             | returns the information types of the system state which is supported to read as like cpu, memory, network traffic, and battery.
 POST        | `/wd/hub/session/{sessionId}/appium/getPerformanceData`				 | returns the information of the system state which is supported to read as like cpu, memory, network traffic, and battery.
+POST        | `/wd/hub/session/{sessionId}/appium/startRecordingScreen`              | start recording the screen.
+POST        | `/wd/hub/session/{sessionId}/appium/stopRecordingScreen`               | stop recording the screen.
 POST        | `/wd/hub/session/{sessionId}/appium/device/press_keycode`              | Press a particular key code on the device.
 POST        | `/wd/hub/session/{sessionId}/appium/device/long_press_keycode`         | Press and hold a particular key code on the device.
 POST        | `/wd/hub/session/{sessionId}/appium/device/keyevent`                   | Send a key code to the device.
