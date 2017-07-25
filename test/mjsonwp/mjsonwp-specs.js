@@ -49,6 +49,19 @@ describe('MJSONWP', async () => {
       });
     });
 
+    it('should assume requests without a Content-Type are json requests', async () => {
+      let res = await request({
+        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        method: 'POST',
+        body: JSON.stringify({url: 'http://google.com'}),
+      });
+      JSON.parse(res).should.eql({
+        status: 0,
+        value: "Navigated to: http://google.com",
+        sessionId: "foo"
+      });
+    });
+
     it('should respond to x-www-form-urlencoded as well as json requests', async () => {
       let res = await request({
         url: 'http://localhost:8181/wd/hub/session/foo/url',
@@ -238,6 +251,36 @@ describe('MJSONWP', async () => {
       });
     });
 
+    describe('w3c sendkeys migration', () => {
+      it('should accept value for sendkeys', async () => {
+        let res = await request({
+          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          method: 'POST',
+          json: {value: "text to type"}
+        });
+        res.status.should.equal(0);
+        res.value.should.eql(["text to type", "bar"]);
+      });
+      it('should accept text for sendkeys', async () => {
+        let res = await request({
+          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          method: 'POST',
+          json: {text: "text to type"}
+        });
+        res.status.should.equal(0);
+        res.value.should.eql(["text to type", "bar"]);
+      });
+      it('should accept value and text for sendkeys, and use value', async () => {
+        let res = await request({
+          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          method: 'POST',
+          json: {value: "text to type", text: "text to ignore"}
+        });
+        res.status.should.equal(0);
+        res.value.should.eql(["text to type", "bar"]);
+      });
+    });
+
     describe('multiple sets of arguments', () => {
       describe('optional', () => {
         it('should allow moveto with element', async () => {
@@ -303,9 +346,10 @@ describe('MJSONWP', async () => {
 
     });
 
-    describe('optional sets of arguments', async () => {
+    describe('optional sets of arguments', () => {
       let desiredCapabilities = {a: 'b'};
       let requiredCapabilities = {c: 'd'};
+      let capabilities = {e: 'f'};
       it('should allow create session with desired caps', async () => {
         let res = await request({
           url: 'http://localhost:8181/wd/hub/session',
@@ -327,22 +371,23 @@ describe('MJSONWP', async () => {
         res.status.should.equal(0);
         res.value.should.eql(_.extend({}, desiredCapabilities, requiredCapabilities));
       });
-      it('should fail to create session without desired caps', async () => {
+      it('should fail to create session without capabilities or desiredCapabilities', async () => {
         await request({
           url: 'http://localhost:8181/wd/hub/session',
           method: 'POST',
-          json: {}
+          json: {},
         }).should.eventually.be.rejectedWith('400');
       });
-      it('should fail to create session with desired caps and random other stuff', async () => {
-        await request({
+      it('should allow create session with capabilities', async () => {
+        let res = await request({
           url: 'http://localhost:8181/wd/hub/session',
           method: 'POST',
           json: {
-            desiredCapabilities,
-            randomCapabilitied: {z: '-a'}
+            capabilities,
           }
-        }).should.eventually.be.rejectedWith('400');
+        });
+        res.status.should.equal(0);
+        res.value.should.eql(capabilities);
       });
     });
 

@@ -109,6 +109,8 @@ POST        | `/wd/hub/session/{sessionId}/appium/device/shake`                 
 POST        | `/wd/hub/session/{sessionId}/appium/device/lock`                       | Lock the device.
 POST        | `/wd/hub/session/{sessionId}/appium/device/unlock`                     | Unlock the device.
 POST        | `/wd/hub/session/{sessionId}/appium/device/is_locked`                  | Check whether the device is locked or not.
+POST        | `/wd/hub/session/{sessionId}/appium/start_recording_screen`            | start recording the screen.
+POST        | `/wd/hub/session/{sessionId}/appium/stop_recording_screen`             | stop recording the screen.
 POST        | `/wd/hub/session/{sessionId}/appium/performanceData/types`             | returns the information types of the system state which is supported to read as like cpu, memory, network traffic, and battery.
 POST        | `/wd/hub/session/{sessionId}/appium/getPerformanceData`				 | returns the information of the system state which is supported to read as like cpu, memory, network traffic, and battery.
 POST        | `/wd/hub/session/{sessionId}/appium/device/press_keycode`              | Press a particular key code on the device.
@@ -132,6 +134,7 @@ POST        | `/wd/hub/session/{sessionId}/appium/device/open_notifications`    
 POST        | `/wd/hub/session/{sessionId}/appium/device/start_activity`             | Start the specified activity on the device.
 GET         | `/wd/hub/session/{sessionId}/appium/device/system_bars`                | Retrieve visibility and bounds information of the status and navigation bars.
 GET         | `/wd/hub/session/{sessionId}/appium/device/display_density`            | Retrieve the display density of the device.
+POST        | `/wd/hub/session/{sessionId}/appium/simulator/toggle_touch_id_enrollment` | Toggle enrollment of touch id on the simulator.
 POST        | `/wd/hub/session/{sessionId}/appium/simulator/touch_id`                | Simulate a successful or failed touch id event on the simulator.
 POST        | `/wd/hub/session/{sessionId}/appium/app/launch`                        | Launch the given application on the device.
 POST        | `/wd/hub/session/{sessionId}/appium/app/close`                         | Close the given application.
