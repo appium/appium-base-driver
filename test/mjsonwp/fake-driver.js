@@ -18,11 +18,15 @@ class FakeDriver extends MobileJsonWireProtocol {
     return this;
   }
 
-  async createSession (desiredCapabilities, requiredCapabilities={}) {
+  async createSession (desiredCapabilities, requiredCapabilities, capabilities) {
     this.sessionId = "1234";
-    this.desiredCapabilities = desiredCapabilities;
-    this.requiredCapabilities = requiredCapabilities;
-    return [this.sessionId, _.extend({}, desiredCapabilities, requiredCapabilities)];
+    if (capabilities) {
+      return [this.sessionId, capabilities];
+    } else {
+      this.desiredCapabilities = desiredCapabilities;
+      this.requiredCapabilities = requiredCapabilities || {};
+      return [this.sessionId, _.extend({}, desiredCapabilities, requiredCapabilities)];
+    }
   }
 
   async executeCommand (cmd, ...args) {
@@ -91,8 +95,8 @@ class FakeDriver extends MobileJsonWireProtocol {
     return [attr, elementId, sessionId];
   }
 
-  async setValue (elementId, value) {
-    return value;
+  async setValue (value, elementId) {
+    return [value, elementId];
   }
 
   async performTouch (...args) {
