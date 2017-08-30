@@ -18,4 +18,4 @@ after_success:
   - npm run coverage
 script:
   - npm run lint
-  - _FORCE_LOGS=1 npm run test
+  - npm test && _FORCE_LOGS=1 npm run e2e-test
