@@ -245,6 +245,17 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
       });
     });
 
+    describe('session parameters', () => {
+      it('should check session parameters', async () => {
+        let session = await startSession(defaultCaps);
+        let res = (await getSession(session.sessionId)).value;
+        should.exist(res.caps.viewportRect);
+        res.caps.pixelRatio.should.equal(2.0);
+        res.caps.statBarHeight.should.equal(20);
+        res.caps.viewportRect.should.not.equal(null);
+        await endSession(session.sessionId);
+      });
+    });
   });
 }
 
