@@ -14,9 +14,11 @@ describe('Desired Capabilities', () => {
   beforeEach(() => {
     d = new BaseDriver();
     sinon.spy(logger, 'warn');
+    sinon.spy(d.log, 'warn');
   });
 
   afterEach(() => {
+    d.log.warn.restore();
     logger.warn.restore();
   });
 
@@ -139,7 +141,7 @@ describe('Desired Capabilities', () => {
       'hold the': 'sauce'
     });
 
-    logger.warn.callCount.should.be.above(0);
+    d.log.warn.callCount.should.be.above(0);
   });
 
   it('should be sensitive to the case of caps', async () => {
@@ -164,7 +166,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'noReset': 'false'
       });
-      logger.warn.callCount.should.be.above(0);
+      d.log.warn.callCount.should.be.above(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.noReset.should.eql(false);
@@ -176,7 +178,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'noReset': 'true'
       });
-      logger.warn.callCount.should.be.above(0);
+      d.log.warn.callCount.should.be.above(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.noReset.should.eql(true);
@@ -188,7 +190,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'language': 'true'
       });
-      logger.warn.callCount.should.equal(0);
+      d.log.warn.callCount.should.equal(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.language.should.eql('true');
@@ -202,7 +204,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'newCommandTimeout': '1'
       });
-      logger.warn.callCount.should.be.above(0);
+      d.log.warn.callCount.should.be.above(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.newCommandTimeout.should.eql(1);
@@ -214,7 +216,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'newCommandTimeout': '1.1'
       });
-      logger.warn.callCount.should.be.above(0);
+      d.log.warn.callCount.should.be.above(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.newCommandTimeout.should.eql(1.1);
@@ -226,7 +228,7 @@ describe('Desired Capabilities', () => {
         'deviceName': 'Delorean',
         'language': '1'
       });
-      logger.warn.callCount.should.equal(0);
+      d.log.warn.callCount.should.equal(0);
 
       let sessions = await d.getSessions();
       sessions[0].capabilities.language.should.eql('1');
@@ -281,7 +283,7 @@ describe('Desired Capabilities', () => {
       'lynx-version': 5
     });
 
-    logger.warn.callCount.should.equal(0);
+    d.log.warn.callCount.should.equal(0);
   });
 
   it('should not validate against null/undefined caps', async function () {
