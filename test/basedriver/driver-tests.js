@@ -109,7 +109,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
     });
 
     it('should distinguish between W3C and JSONWP session', async () => {
-      // Test JSONWP// Test W3C (leave first 2 args null because those are the JSONWP args)
+      // Test JSONWP
       await d.executeCommand('createSession', {
         platformName: 'Fake',
         deviceName: 'Commodore 64',
