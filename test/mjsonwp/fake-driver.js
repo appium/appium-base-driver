@@ -36,7 +36,7 @@ class FakeDriver extends MobileJsonWireProtocol {
       throw new errors.NotYetImplementedError();
     }
     if (cmd === 'createSession') {
-      BaseDriver.prototype.determineProtocol.apply(this, args);
+      this.protocol = BaseDriver.determineProtocol.apply(null, args);
     }
     return await this[cmd](...args);
   }
