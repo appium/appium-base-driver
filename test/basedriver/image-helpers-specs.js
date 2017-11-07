@@ -1,6 +1,5 @@
 /* eslint-disable */
-import { cropBase64Image } from '../../lib/basedriver/image-helpers';
-import {PNG} from 'pngjs';
+import { createImageFromBase64, createBase64FromImage, cropImage } from '../../lib/basedriver/image-helpers';
 import path from 'path';
 import chai from 'chai';
 import { fs } from 'appium-support';
@@ -15,11 +14,11 @@ async function getImage (file) {
 
 describe('image-helpers', () => {
   describe('#cropBase64Image', () => {
-    let originalImage64 = null;
+    let originalImage = null;
 
     before(async () => {
-      originalImage64 = await getImage('full-image.b64');
-      const originalImage = PNG.sync.read(Buffer.from(originalImage64, 'base64'));
+      const originalImage64 = await getImage('full-image.b64');
+      originalImage = await createImageFromBase64(originalImage64);
 
       // verify original image size, to be sure that original image is correct
       originalImage.width.should.be.equal(640, 'unexpected width');
@@ -27,9 +26,7 @@ describe('image-helpers', () => {
     });
 
     it('should verify that an image is cropped correctly', async () => {
-      const croppedImage64 = cropBase64Image(originalImage64, {top: 107, left: 35, width: 323, height: 485});
-
-      const croppedImage = PNG.sync.read(Buffer.from(croppedImage64, 'base64'));
+      const croppedImage = await cropImage(originalImage, {left: 35, top: 107, width: 323, height: 485});
 
       // verify cropped image size, it should be less than original image according to crop region
       croppedImage.width.should.be.equal(323, 'unexpected width');
@@ -37,6 +34,7 @@ describe('image-helpers', () => {
 
       // verify that image cropped, compare base64 representation
       const croppedImageShouldBe = await getImage('cropped-image.b64');
+      const croppedImage64 = await createBase64FromImage(croppedImage);
       croppedImage64.should.be.equal(croppedImageShouldBe);
     });
   });
