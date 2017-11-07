@@ -1,6 +1,6 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { helpers } from '../../lib/basedriver/commands/actions';
+import { commands, helpers } from '../../lib/basedriver/commands/actions';
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -154,6 +154,34 @@ describe('actions', () => {
         [{action: 'release'}, {action: 'cancel'}],
         [{action: 'moveTo', options: {duration: 100, x: 100, y: 100}}, {action: 'cancel'}],
       ]);
+    });
+  });
+  describe('.performActions', function () {
+    let testActions = [{
+      type: 'pointer',
+      parameters: {
+        poinerType: 'touch'
+      },
+      actions: [
+        {"type": "pause", "duration": 100},
+      ],
+    }];
+
+    it('should throw not implemented error if performMultiAction is not defined', async function () {
+      await commands.performActions(testActions).should.be.rejectedWith(/not yet implemented/);
+    });
+
+    it('should throw error if bad actions provided', async function () {
+      await commands.performActions([{type: 'fakeAction', actions: []}]).should.be.rejectedWith(/not a valid type/);
+    });
+
+    it('should work if performMultiAction is defined', async function () {
+      const fakeDriver = {
+        performMultiAction (actions) {
+          actions.should.deep.equal([[{action: 'wait', options: {duration: 100}}]]);
+        }
+      };
+      await commands.performActions.call(fakeDriver, testActions);
     });
   });
 });

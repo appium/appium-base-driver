@@ -1,6 +1,6 @@
 // transpile:mocha
 
-import { server, routeConfiguringFunction, errors } from '../..';
+import { server, routeConfiguringFunction, errors, BaseDriver } from '../..';
 import { FakeDriver } from './fake-driver';
 import _ from 'lodash';
 import request from 'request-promise';
@@ -782,6 +782,58 @@ describe('MJSONWP', async () => {
       res.statusCode.should.equal(200);
       should.not.exist(driver.sessionId);
       driver.jwpProxyActive.should.be.false;
+    });
+  });
+
+  describe('multi actions (W3C)', function () {
+    let driver;
+    let mjsonwpServer;
+
+    class Driver extends BaseDriver {
+      async performMultiAction (multiActions) {
+        multiActions.should.deep.equal([
+          [{action: 'release'}, {action: 'cancel'}],
+          [{action: 'moveTo', options: {duration: 100, x: 100, y: 100}}, {action: 'cancel'}],
+        ]);
+        return 'foo';
+      }
+    }
+
+    before(async function () {
+      driver = new Driver();
+      driver.sessionId = 'foo';
+      mjsonwpServer = await server(routeConfiguringFunction(driver), 8181);
+    });
+    after(async function () {
+      await mjsonwpServer.close();
+    });
+    it('should pass W3C actions to JSONWP', async function () {
+      const actions =  [{
+        type: 'pointer',
+        parameters: {
+          poinerType: 'touch'
+        },
+        actions: [
+          {"type": "pointerup"},
+          {"type": "pointercancel"},
+        ],
+      }, {
+        type: 'pointer',
+        parameters: {
+          poinerType: 'touch'
+        },
+        actions: [
+          {"type": "pointermove", "duration": 100, "x": 100, "y": 100},
+          {"type": "pointercancel"},
+        ],
+      }];
+      const {status, value} = await request({
+        url: `http://localhost:8181/wd/hub/session/${driver.sessionId}/actions`,
+        method: 'POST',
+        json: { actions },
+      });
+      value.should.equal('foo');
+      status.should.equal(0);
     });
   });
 });
