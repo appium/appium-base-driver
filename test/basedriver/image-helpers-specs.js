@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { createImageFromBase64, createBase64FromImage, cropImage } from '../../lib/basedriver/image-helpers';
+import { base64ToImage, imageToBase64, cropImage } from '../../lib/basedriver/image-helpers';
 import path from 'path';
 import chai from 'chai';
 import { fs } from 'appium-support';
@@ -18,7 +18,7 @@ describe('image-helpers', () => {
 
     before(async () => {
       const originalImage64 = await getImage('full-image.b64');
-      originalImage = await createImageFromBase64(originalImage64);
+      originalImage = await base64ToImage(originalImage64);
 
       // verify original image size, to be sure that original image is correct
       originalImage.width.should.be.equal(640, 'unexpected width');
@@ -34,7 +34,7 @@ describe('image-helpers', () => {
 
       // verify that image cropped, compare base64 representation
       const croppedImageShouldBe = await getImage('cropped-image.b64');
-      const croppedImage64 = await createBase64FromImage(croppedImage);
+      const croppedImage64 = await imageToBase64(croppedImage);
       croppedImage64.should.be.equal(croppedImageShouldBe);
     });
   });
