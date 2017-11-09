@@ -3,8 +3,9 @@
 // BaseDriver exports
 import BaseDriver from './lib/basedriver/driver';
 import DeviceSettings from './lib/basedriver/device-settings';
+import ImageHelpers from './lib/basedriver/image-helpers';
 
-export { BaseDriver, DeviceSettings };
+export { BaseDriver, DeviceSettings, ImageHelpers };
 export default BaseDriver;
 
 // MJSONWP exports

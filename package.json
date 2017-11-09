@@ -40,7 +40,8 @@
     "source-map-support": "^0.4.0",
     "teen_process": "^1.5.2",
     "uuid-js": "^0.7.5",
-    "validate.js": "^0.9.0"
+    "validate.js": "^0.9.0",
+    "pngjs": "^3.0.0"
   },
   "scripts": {
     "prepublish": "gulp prepublish",
