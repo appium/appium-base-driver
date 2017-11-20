@@ -437,6 +437,19 @@ describe('MJSONWP', async () => {
       });
     });
 
+    it('should call broadcast intent endpoint', async () => {
+      const res = await request({
+        url: `http://localhost:8181/wd/hub/session/foo/appium/device/broadcast_intent`,
+        method: 'POST',
+        json: {
+          intent: 'intent'
+        },
+        simple: false
+      });
+
+      res.value.should.equal('INTENT');
+    });
+
     it('should not throw UnknownError when known', async () => {
       let res = await request({
         url: 'http://localhost:8181/wd/hub/session/foo',
