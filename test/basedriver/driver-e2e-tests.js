@@ -244,7 +244,6 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         await endSession(session.sessionId);
       });
     });
-
   });
 }
 
