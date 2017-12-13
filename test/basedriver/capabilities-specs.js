@@ -3,6 +3,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
+chai.should();
 
 describe('caps', () => {
 
@@ -213,6 +214,20 @@ describe('caps', () => {
         alwaysMatch: {hello: 'world'},
         firstMatch: [{foo: 'bar'}]
       }).should.deep.equal({hello: 'world', foo: 'bar'});
+    });
+
+    it('should strip out the "appium:" prefix for non-standard capabilities', () => {
+      processCapabilities({
+        alwaysMatch: {'appium:hello': 'world'},
+        firstMatch: [{'appium:foo': 'bar'}]
+      }).should.deep.equal({hello: 'world', foo: 'bar'});
+    });
+
+    it('should throw an exception if a standard capability (https://www.w3.org/TR/webdriver/#dfn-table-of-standard-capabilities) is prefixed', () => {
+      (() => processCapabilities({
+        alwaysMatch: {'appium:platformName': 'Whatevz'},
+        firstMatch: [{'appium:browserName': 'Anything'}],
+      })).should.throw(/standard capabilities/);
     });
   });
 });
