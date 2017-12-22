@@ -390,7 +390,7 @@ describe('MJSONWP', async () => {
         res.status.should.equal(0);
         res.value.should.eql(capabilities);
       });
-      it('should fail with code 408 when starting W3C session and then running a command that throws a TimeoutError', async () => {
+      it.only('should fail with code 408 when starting W3C session and then running a command that throws a TimeoutError', async () => {
         let w3cCaps = {
           alwaysMatch: {
             platformName: 'Fake',
@@ -398,13 +398,14 @@ describe('MJSONWP', async () => {
           },
           firstMatch: [{}],
         };
-        let {sessionId} = await request({
+        let {value} = await request({
           url: 'http://localhost:8181/wd/hub/session',
           method: 'POST',
           json: {
             capabilities: w3cCaps,
           }
         });
+        let sessionId = value.sessionId;
         let {statusCode:badStatusCode} = await request({
           url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
           method: 'POST',
