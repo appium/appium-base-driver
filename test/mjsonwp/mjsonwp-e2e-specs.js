@@ -390,7 +390,7 @@ describe('MJSONWP', async () => {
         res.status.should.equal(0);
         res.value.should.eql(capabilities);
       });
-      it.only('should fail with code 408 when starting W3C session and then running a command that throws a TimeoutError', async () => {
+      it('should fail with code 408 when starting W3C session and then running a command that throws a TimeoutError', async () => {
         let w3cCaps = {
           alwaysMatch: {
             platformName: 'Fake',
