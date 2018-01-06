@@ -3,7 +3,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
-chai.should();
+const should = chai.should();
 
 describe('caps', function () {
 
@@ -25,7 +25,7 @@ describe('caps', function () {
       });
 
       it('returns the capability that was passed in if "skipPresenceConstraint" is false', function () {
-        validateCaps({}, {foo: {presence: true}}, true).should.deep.equal({});
+        validateCaps({}, {foo: {presence: true}}, {skipPresenceConstraint: true}).should.deep.equal({});
       });
 
       it('returns invalid argument error if "isString" constraint not met on property', function () {
@@ -97,11 +97,6 @@ describe('caps', function () {
     });
   });
 
-  // Tests based on: https://www.w3.org/TR/webdriver/#dfn-matching-caps
-  describe('#matchCaps', function () {
-    // TODO: Do we need this?
-  });
-
   // Tests based on: https://www.w3.org/TR/webdriver/#processing-caps
   describe('#parseCaps', function () {
     let caps;
@@ -129,11 +124,11 @@ describe('caps', function () {
     });
 
     it('sets "allFirstMatchCaps" to property named "firstMatch" (3)', function () {
-      parseCaps({}, []).allFirstMatchCaps.should.deep.equal([]);
+      parseCaps({}, [{}]).allFirstMatchCaps.should.deep.equal([{}]);
     });
 
-    it('sets "allFirstMatchCaps" to [] if "firstMatch" is undefined (3.1)', function () {
-      parseCaps({}).allFirstMatchCaps.should.deep.equal([]);
+    it('sets "allFirstMatchCaps" to [{}] if "firstMatch" is undefined (3.1)', function () {
+      parseCaps({}).allFirstMatchCaps.should.deep.equal([{}]);
     });
 
     it('returns invalid argument error if "firstMatch" is not an array and is not undefined (3.2)', function () {
@@ -143,8 +138,8 @@ describe('caps', function () {
       }
     });
 
-    it('has "validatedFirstMatchCaps" property that is [] by default (4)', function () {
-      parseCaps(caps).validatedFirstMatchCaps.should.deep.equal([]);
+    it('has "validatedFirstMatchCaps" property that is empty by default if no valid firstMatch caps were found (4)', function () {
+      parseCaps(caps, {foo: {presence: true}}).validatedFirstMatchCaps.should.deep.equal([]);
     });
 
     describe('returns a "validatedFirstMatchCaps" array (5)', function () {
@@ -153,9 +148,36 @@ describe('caps', function () {
         parseCaps(caps).validatedFirstMatchCaps.should.deep.equal(caps.firstMatch);
       });
 
-      it('returns invalid argument error if firstMatch array\'s first argument fails constraints', function () {
+      it('returns "null" matchedCaps if nothing matches', function () {
         caps.firstMatch = [{}];
-        (() => parseCaps(caps, {foo: {presence: true}})).should.throw(/foo can't be blank/);
+        should.equal(parseCaps(caps, {foo: {presence: true}}).matchedCaps, null);
+      });
+
+      it(`should return capabilities if presence constraint is matched in at least one of the 'firstMatch' capabilities objects`, function () {
+        caps.alwaysMatch = {
+          foo: 'bar',
+        };
+        caps.firstMatch = [{
+          hello: 'world',
+        }, {
+          goodbye: 'world',
+        }];
+        parseCaps(caps, {goodbye: {presence: true}}).matchedCaps.should.deep.equal({
+          foo: 'bar',
+          goodbye: 'world',
+        });
+      });
+
+      it(`throws invalid argument if presence constraint is not met on any capabilities`, function () {
+        caps.alwaysMatch = {
+          foo: 'bar',
+        };
+        caps.firstMatch = [{
+          hello: 'world',
+        }, {
+          goodbye: 'world',
+        }];
+        should.equal(parseCaps(caps, {someAttribute: {presence: true}}).matchedCaps, null);
       });
 
       it('that equals firstMatch if firstMatch contains two objects that pass the provided constraints', function () {
@@ -178,6 +200,7 @@ describe('caps', function () {
       });
 
       it('returns invalid argument error if the firstMatch[2] is not an object', function () {
+        caps.alwaysMatch = 'Not an object and not undefined';
         caps.firstMatch = [{foo: 'bar'}, 'foo'];
         (() => parseCaps(caps, {})).should.throw(/must be a JSON object/);
       });
@@ -246,6 +269,27 @@ describe('caps', function () {
       caps.platformName.should.equal('Fake');
       caps.fakeCap.should.equal('foobar');
       caps.foo.should.equal('bar');
+    });
+
+    it('should throw an exception if no matching caps were found', function () {
+      (() => processCapabilities({
+        alwaysMatch: {'platformName': 'Fake', 'appium:fakeCap': 'foobar'},
+        firstMatch: [{'foo': 'bar'}],
+      }, {
+        platformName: {
+          presence: true,
+        },
+        fakeCap: {
+          presence: true
+        },
+        missingCap: {
+          presence: true,
+        },
+      })).should.throw(/ /);
+    });
+
+    it('should throw an exception if it doesn\'t have Appium-esque constraints', function () {
+
     });
   });
 });
