@@ -251,14 +251,14 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         await d.deleteSession();
       });
       it('should get timeouts that we set', async () => {
-        await d.timeouts('implicit', 1000);
+        await d.timeoutsW3C(null, null, null, null, 1000);
         await d.getTimeouts().should.eventually.have.property('implicit', 1000);
-        await d.timeouts('command', 2000);
+        await d.timeoutsW3C('command', 2000);
         await d.getTimeouts().should.eventually.deep.equal({
           implicit: 1000,
           command: 2000,
         });
-        await d.timeouts('implicit', 3000);
+        await d.timeoutsW3C(null, null, null, null, 3000);
         await d.getTimeouts().should.eventually.deep.equal({
           implicit: 3000,
           command: 2000,
