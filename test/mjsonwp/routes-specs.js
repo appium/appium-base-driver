@@ -46,6 +46,11 @@ describe('MJSONWP', () => {
 
   describe('check route to command name conversion', () => {
     it('should properly lookup correct command name for endpoint with session', () => {
+      const cmdName = routeToCommandName('/timeouts', 'POST');
+      cmdName.should.equal('timeoutsW3C');
+    });
+
+    it('should properly lookup correct command name for endpoint with session', () => {
       const cmdName = routeToCommandName('/timeouts/implicit_wait', 'POST');
       cmdName.should.equal('implicitWait');
     });

@@ -86,6 +86,65 @@ describe('MJSONWP', () => {
         (() => {validators.timeouts('foofoo', 100);}).should.throw(/'foofoo'/);
       });
     });
+    describe('timeoutsW3C', () => {
+      it('should fail when given no ms', async () => {
+        (() => {validators.timeoutsW3C('page load', null, null, null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a non-numeric ms', async () => {
+        (() => {validators.timeoutsW3C('page load', "five", null, null, null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a negative ms', async () => {
+        (() => {validators.timeoutsW3C('page load', -1, null, null, null);}).should.throw(/ms/i);
+      });
+      it('should succeed when given an ms of 0', async () => {
+        (() => {validators.timeoutsW3C('page load', 0, null, null, null);}).should.not.throw();
+      });
+      it('should succeed when given an ms greater than 0', async () => {
+        (() => {validators.timeoutsW3C('page load', 100, null, null, null);}).should.not.throw();
+      });
+      it('should not allow an invalid timeout type', async () => {
+        (() => {validators.timeoutsW3C('foofoo', 100, null, null, null);}).should.throw(/'foofoo'/);
+      });
+      it('should fail when given a non-numeric scriptDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, 'one', null, null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a non-numeric pageLoadDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, 'one', null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a non-numeric implicitDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, null, 'one');}).should.throw(/ms/i);
+      });
+      it('should fail when given a negative scriptDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, -1, null, null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a negative pageLoadDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, -1, null);}).should.throw(/ms/i);
+      });
+      it('should fail when given a negative implicitDuration', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, null -1);}).should.throw(/ms/i);
+      });
+      it('should succeed when given scriptDuration of 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, 0, null, null);}).should.not.throw();
+      });
+      it('should succeed when given pageLoadDuration of 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, 0, null);}).should.not.throw();
+      });
+      it('should succeed when given implicitDuration of 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, null, 0);}).should.not.throw();
+      });
+      it('should succeed when given scriptDuration greater than 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, 1, null, null);}).should.not.throw();
+      });
+      it('should succeed when given pageLoadDuration greater than 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, 1, null);}).should.not.throw();
+      });
+      it('should succeed when given implicitDuration greater than 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, null, null, 1);}).should.not.throw();
+      });
+      it('should succeed when given scriptDuration,  pageLoadDuration and implicitDuration greater than 0', async () => {
+        (() => {validators.timeoutsW3C(null, null, 1, 1, 1);}).should.not.throw();
+      });
+    });
     describe('clickCurrent', () => {
       it('should fail when given an invalid button', async () => {
         (() => {validators.clickCurrent(4);}).should.throw(/0, 1, or 2/i);

@@ -22,6 +22,31 @@ describe('timeout', () => {
     implicitWaitSpy.reset();
     newCommandTimeoutSpy.reset();
   });
+  describe('timeoutsW3C', () => {
+    describe('errors', () => {
+      it('should throw an error if something random is sent to scriptDuration', async () => {
+        await driver.timeoutsW3C(null, null, 123, null, null).should.eventually.be.rejected;
+      });
+      it('should throw an error if something random is sent to pageLoadDuration', async () => {
+        await driver.timeoutsW3C(null, null, null, 123, null).should.eventually.be.rejected;
+      });
+    });
+    describe('implicit wait', () => {
+      it('should call setImplicitWait when given an integer to implicitDuration', async () => {
+        await driver.timeoutsW3C(null, null, null, null, 42);
+        implicitWaitSpy.calledOnce.should.be.true;
+        implicitWaitSpy.firstCall.args[0].should.equal(42);
+        driver.implicitWaitMs.should.eql(42);
+      });
+      it('should call setImplicitWait when given a string to implicitDuration', async () => {
+        await driver.timeoutsW3C(null, null, null, null, 42);
+        implicitWaitSpy.calledOnce.should.be.true;
+        implicitWaitSpy.firstCall.args[0].should.equal(42);
+        driver.implicitWaitMs.should.eql(42);
+      });
+    });
+  });
+
   describe('timeouts', () => {
     describe('errors', () => {
       it('should throw an error if something random is sent', async () => {
