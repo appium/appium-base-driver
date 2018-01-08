@@ -81,7 +81,7 @@ describe('caps', function () {
     });
 
     it('returns invalid argument error if primary and secondary have matching properties (4)', function () {
-      (() => mergeCaps({hello: 'world'}, {hello: 'whirl'})).should.throw(/property 'hello' should not exist on both primary and secondary/);
+      (() => mergeCaps({hello: 'world'}, {hello: 'whirl'})).should.throw(/property 'hello' should not exist on both primary [\w\W]* and secondary [\w\W]*/);
     });
 
     it('returns a result with keys from primary and secondary together', function () {
