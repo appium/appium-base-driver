@@ -1,6 +1,8 @@
 import { parseCaps, validateCaps, mergeCaps, processCapabilities } from '../../lib/basedriver/capabilities';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import _ from 'lodash';
+import { desiredCapabilityConstraints } from '../../lib/basedriver/desired-caps';
 
 chai.use(chaiAsPromised);
 const should = chai.should();
@@ -21,7 +23,7 @@ describe('caps', function () {
 
     describe('throws errors if constraints are not met', function () {
       it('returns invalid argument error if "present" constraint not met on property', function () {
-        (() => validateCaps({}, {foo: {presence: true}})).should.throw(/foo can't be blank/);
+        (() => validateCaps({}, {foo: {presence: true}})).should.throw(/'foo' can't be blank/);
       });
 
       it('returns the capability that was passed in if "skipPresenceConstraint" is false', function () {
@@ -29,23 +31,23 @@ describe('caps', function () {
       });
 
       it('returns invalid argument error if "isString" constraint not met on property', function () {
-        (() => validateCaps({foo: 1}, {foo: {isString: true}})).should.throw(/foo must be of type string/);
+        (() => validateCaps({foo: 1}, {foo: {isString: true}})).should.throw(/'foo' must be of type string/);
       });
 
       it('returns invalid argument error if "isNumber" constraint not met on property', function () {
-        (() => validateCaps({foo: 'bar'}, {foo: {isNumber: true}})).should.throw(/foo must be of type number/);
+        (() => validateCaps({foo: 'bar'}, {foo: {isNumber: true}})).should.throw(/'foo' must be of type number/);
       });
 
       it('returns invalid argument error if "isBoolean" constraint not met on property', function () {
-        (() => validateCaps({foo: 'bar'}, {foo: {isBoolean: true}})).should.throw(/foo must be of type boolean/);
+        (() => validateCaps({foo: 'bar'}, {foo: {isBoolean: true}})).should.throw(/'foo' must be of type boolean/);
       });
 
       it('returns invalid argument error if "inclusion" constraint not met on property', function () {
-        (() => validateCaps({foo: '3'}, {foo: {inclusionCaseInsensitive: ['1', '2']}})).should.throw(/foo 3 not part of 1,2./);
+        (() => validateCaps({foo: '3'}, {foo: {inclusionCaseInsensitive: ['1', '2']}})).should.throw(/'foo' 3 not part of 1,2/);
       });
 
       it('returns invalid argument error if "inclusionCaseInsensitive" constraint not met on property', function () {
-        (() => validateCaps({foo: 'a'}, {foo: {inclusion: ['A', 'B', 'C']}})).should.throw(/foo a is not included in the list/);
+        (() => validateCaps({foo: 'a'}, {foo: {inclusion: ['A', 'B', 'C']}})).should.throw(/'foo' a is not included in the list/);
       });
     });
 
@@ -79,7 +81,7 @@ describe('caps', function () {
     });
 
     it('returns invalid argument error if primary and secondary have matching properties (4)', function () {
-      (() => mergeCaps({hello: 'world'}, {hello: 'whirl'})).should.throw(/property hello should not exist on both primary and secondary/);
+      (() => mergeCaps({hello: 'world'}, {hello: 'whirl'})).should.throw(/property 'hello' should not exist on both primary and secondary/);
     });
 
     it('returns a result with keys from primary and secondary together', function () {
@@ -120,7 +122,7 @@ describe('caps', function () {
 
     it('returns invalid argument error if "requiredCaps" don\'t match "constraints" (2.2)', function () {
       caps.alwaysMatch = {foo: 1};
-      (() => parseCaps(caps, {foo: {isString: true}})).should.throw(/foo must be of type string/);
+      (() => parseCaps(caps, {foo: {isString: true}})).should.throw(/'foo' must be of type string/);
     });
 
     it('sets "allFirstMatchCaps" to property named "firstMatch" (3)', function () {
@@ -285,11 +287,98 @@ describe('caps', function () {
         missingCap: {
           presence: true,
         },
-      })).should.throw(/ /);
+      })).should.throw(/'missingCap' can't be blank/);
     });
 
-    it('should throw an exception if it doesn\'t have Appium-esque constraints', function () {
+    describe('validate Appium-like constraints', function () {
+      let constraints = {...desiredCapabilityConstraints};
+      constraints.automationName.inclusionCaseInsensitive.push('Fake');
 
+      let matchingCaps = {'platformName': 'Fake', 'automationName': 'Fake', 'deviceName': 'Fake'};
+      let caps;
+
+      it('should validate when alwaysMatch has the proper caps', function () {
+        caps = {
+          alwaysMatch: matchingCaps,
+          firstMatch: [{}],
+        };
+        processCapabilities(caps, constraints).should.deep.equal(matchingCaps);
+      });
+
+
+      it('should validate when firstMatch[0] has the proper caps', function () {
+        caps = {
+          alwaysMatch: {},
+          firstMatch: [matchingCaps],
+        };
+        processCapabilities(caps, constraints).should.deep.equal(matchingCaps);
+      });
+
+      it('should validate when alwaysMatch and firstMatch[0] have the proper caps when merged together', function () {
+        caps = {
+          alwaysMatch: _.omit(matchingCaps, ['deviceName']),
+          firstMatch: [{'appium:deviceName': 'Fake'}],
+        };
+        processCapabilities(caps, constraints).should.deep.equal(matchingCaps);
+      });
+
+      it('should validate when automationName is omitted', function () {
+        caps = {
+          alwaysMatch: _.omit(matchingCaps, ['automationName']),
+        };
+        processCapabilities(caps, constraints).should.deep.equal(_.omit(matchingCaps, 'automationName'));
+      });
+
+      it('should pass if first element in "firstMatch" does validate and second element does not', function () {
+        caps = {
+          alwaysMatch: {},
+          firstMatch: [
+            matchingCaps,
+            {badCaps: 'badCaps'},
+          ],
+        };
+        processCapabilities(caps, constraints).should.deep.equal(matchingCaps);
+      });
+
+      it('should pass if first element in "firstMatch" does not validate and second element does', function () {
+        caps = {
+          alwaysMatch: {},
+          firstMatch: [
+            {badCaps: 'badCaps'},
+            matchingCaps,
+          ],
+        };
+        processCapabilities(caps, constraints).should.deep.equal(matchingCaps);
+      });
+
+      it('should fail when deviceName is blank', function () {
+        caps = {
+          alwaysMatch: _.omit(matchingCaps, ['deviceName']),
+        };
+        (() => processCapabilities(caps, constraints)).should.throw(/'deviceName' can't be blank/);
+      });
+
+      it('should fail when a bad automation name is provided', function () {
+        caps = {
+          alwaysMatch: {
+            ...matchingCaps,
+            automationName: 'NotAValidAutomationName',
+          },
+        };
+        (() => processCapabilities(caps, constraints)).should.throw(/'automationName' NotAValidAutomationName not part of/);
+      });
+
+      it('should fail when bad parameters are passed in more than one firstMatch capability', function () {
+        caps = {
+          alwaysMatch: {},
+          firstMatch: [{
+            bad: 'params',
+          }, {
+            more: 'bad-params',
+          }],
+        };
+        (() => processCapabilities(caps, constraints)).should.throw(/Could not find matching capabilities/);
+      });
     });
   });
 });
