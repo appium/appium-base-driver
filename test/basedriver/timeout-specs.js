@@ -70,7 +70,7 @@ describe('timeout', () => {
   });
   describe('implicitWait', () => {
     it('should call setImplicitWait when given an integer', async () => {
-      driver.implicitWait(42);
+      driver.setImplicitWait(42);
       implicitWaitSpy.calledOnce.should.be.true;
       implicitWaitSpy.firstCall.args[0].should.equal(42);
       driver.implicitWaitMs.should.eql(42);
