@@ -229,7 +229,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
           d.newCommandTimeoutMs.should.equal(60000);
         });
         it('should be settable through `timeouts`', async () => {
-          await d.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'command', ms: 20}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+          await d.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'command', ms: 20}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
           d.newCommandTimeoutMs.should.equal(20);
         });
       });
@@ -238,7 +238,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
           d.implicitWaitMs.should.equal(0);
         });
         it('should be settable through `timeouts`', async () => {
-          await d.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: 20}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+          await d.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: 20}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
           d.implicitWaitMs.should.equal(20);
         });
       });
@@ -252,14 +252,14 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         await d.deleteSession();
       });
       it('should get timeouts that we set', async () => {
-        await d.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 1000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await d.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 1000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         await d.getTimeouts().should.eventually.have.property('implicit', 1000);
-        await d.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'command', ms: 2000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await d.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'command', ms: 2000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         await d.getTimeouts().should.eventually.deep.equal({
           implicit: 1000,
           command: 2000,
         });
-        await d.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 3000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await d.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 3000}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         await d.getTimeouts().should.eventually.deep.equal({
           implicit: 3000,
           command: 2000,

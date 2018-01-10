@@ -22,46 +22,46 @@ describe('timeout', () => {
     implicitWaitSpy.reset();
     newCommandTimeoutSpy.reset();
   });
-  describe('timeoutsW3C', () => {
+  describe('timeouts', () => {
     describe('errors', () => {
       it('should throw an error if something random is sent', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: 'howdy'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: 'howdy'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
       });
       it('should throw an error if timeout is negative', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: -42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: -42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
       });
       it('should throw an errors if timeout type is unknown', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'random timeout', ms: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
       });
       it('should throw an error if something random is sent to scriptDuration', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: 123, pageLoad: undefined, implicit: undefined}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: 123, pageLoad: undefined, implicit: undefined}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
       });
       it('should throw an error if something random is sent to pageLoadDuration', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: 123, implicit: undefined}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: 123, implicit: undefined}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97").should.eventually.be.rejected;
       });
     });
     describe('implicit wait', () => {
       it('should call setImplicitWait when given an integer', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         implicitWaitSpy.calledOnce.should.be.true;
         implicitWaitSpy.firstCall.args[0].should.equal(42);
         driver.implicitWaitMs.should.eql(42);
       });
       it('should call setImplicitWait when given a string', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: '42'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.MJSONWP, type: 'implicit', ms: '42'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         implicitWaitSpy.calledOnce.should.be.true;
         implicitWaitSpy.firstCall.args[0].should.equal(42);
         driver.implicitWaitMs.should.eql(42);
       });
 
       it('should call setImplicitWait when given an integer to implicitDuration', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: 42}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         implicitWaitSpy.calledOnce.should.be.true;
         implicitWaitSpy.firstCall.args[0].should.equal(42);
         driver.implicitWaitMs.should.eql(42);
       });
       it('should call setImplicitWait when given a string to implicitDuration', async () => {
-        await driver.timeoutsW3C({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: '42'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
+        await driver.timeouts({protocol: BaseDriver.DRIVER_PROTOCOL.W3C, script: undefined, pageLoad: undefined, implicit: '42'}, "1dcfe021-8fc8-49bd-8dac-e986d3091b97");
         implicitWaitSpy.calledOnce.should.be.true;
         implicitWaitSpy.firstCall.args[0].should.equal(42);
         driver.implicitWaitMs.should.eql(42);
