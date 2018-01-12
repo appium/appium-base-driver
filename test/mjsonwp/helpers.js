@@ -10,10 +10,10 @@ export function createProxyServer (sessionId, port) {
 }
 
 let handlers = {
-  'post': {},
-  'get': {},
-  'delete': {},
-  'put': {},
+  post: {},
+  get: {},
+  delete: {},
+  put: {},
 };
 
 export function addHandler (app, method, url, handler) {
