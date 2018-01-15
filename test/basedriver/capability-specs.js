@@ -344,8 +344,8 @@ describe('Desired Capabilities', () => {
     it('should accept w3c capabilities', async () => {
       const [sessionId, caps] = await d.createSession(null, null, {
         alwaysMatch: {
-          'platformName': 'iOS',
-          'deviceName': 'Delorean'
+          platformName: 'iOS',
+          deviceName: 'Delorean'
         }, firstMatch: [{}],
       });
       sessionId.should.exist;
