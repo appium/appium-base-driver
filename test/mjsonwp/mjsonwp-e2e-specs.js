@@ -9,6 +9,7 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import HTTPStatusCodes from 'http-status-codes';
 import { createProxyServer, addHandler } from './helpers';
+import { MJSONWP_ELEMENT_KEY, W3C_ELEMENT_KEY } from '../../lib/mjsonwp/mjsonwp';
 
 let should = chai.should();
 chai.use(chaiAsPromised);
@@ -457,15 +458,14 @@ describe('MJSONWP', async function () {
         });
 
         it(`should translate element format from MJSONWP to W3C`, async function () {
-          const W3C_ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
           const retValue = [
             {
               something: {
-                ELEMENT: 'fooo',
+                [MJSONWP_ELEMENT_KEY]: 'fooo',
                 other: 'bar'
               }
             }, {
-              ELEMENT: 'bar'
+              [MJSONWP_ELEMENT_KEY]: 'bar'
             },
             'ignore',
           ];
