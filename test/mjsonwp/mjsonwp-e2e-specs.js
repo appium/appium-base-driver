@@ -456,7 +456,45 @@ describe('MJSONWP', async function () {
           delete driver.performActions;
         });
 
-        it(`should fail with a 408 error if it throws a TimeoutError exception`, async function () {
+        it(`should translate element format from MJSONWP to W3C`, async function () {
+          const W3C_ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
+          const retValue = [
+            {
+              something: {
+                ELEMENT: 'fooo',
+                other: 'bar'
+              }
+            }, {
+              ELEMENT: 'bar'
+            },
+            'ignore',
+          ];
+
+          const expectedValue = [
+            {
+              something: {
+                [W3C_ELEMENT_KEY]: 'fooo',
+                other: 'bar'
+              }
+            }, {
+              [W3C_ELEMENT_KEY]: 'bar'
+            },
+            'ignore',
+          ];
+
+          const findElementsBackup = driver.findElements;
+          driver.findElements = () => retValue;
+          const {value} = await request.post(`${sessionUrl}/elements`, {
+            json: {
+              using: 'whatever',
+              value: 'whatever',
+            },
+          });
+          value.should.deep.equal(expectedValue);
+          driver.findElements = findElementsBackup;
+        });
+
+        it(`should fail with a 408 error if it throws a TimeoutError exception`, async () => {
           sinon.stub(driver, 'setUrl', () => { throw new errors.TimeoutError; });
           let {statusCode} = await request({
             url: `${sessionUrl}/url`,
