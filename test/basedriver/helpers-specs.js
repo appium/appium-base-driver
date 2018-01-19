@@ -68,5 +68,36 @@ describe('helpers', function () {
         should.equal(renameKey(item), item);
       });
     });
+    it('should rename keys on big complex objects', function () {
+      const input = [
+        {'foo': 'bar'},
+        {
+          hello: {
+            world: {
+              'foo': 'BAR',
+            }
+          },
+          foo: 'bahr'
+        },
+        'foo',
+        null,
+        0
+      ];
+      const expectedOutput = [
+        {'FOO': 'bar'},
+        {
+          hello: {
+            world: {
+              'FOO': 'BAR',
+            }
+          },
+          FOO: 'bahr'
+        },
+        'foo',
+        null,
+        0
+      ];
+      renameKey(input, 'foo', 'FOO').should.deep.equal(expectedOutput);
+    });
   });
 });
