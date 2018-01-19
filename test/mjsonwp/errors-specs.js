@@ -202,4 +202,14 @@ describe('.getResponseForW3CError', function () {
     message.should.match(/specific error message/);
     stacktrace.should.match(/errors-specs.js/);
   });
+  it('should handle BadParametersError', function () {
+    const badParamsError = new errors.BadParametersError('__FOO__', '__BAR__', '__HELLO_WORLD__');
+    const [httpStatus, httpResponseBody] = getResponseForW3CError(badParamsError);
+    httpStatus.should.equal(400);
+    const {error, message, stacktrace} = httpResponseBody.value;
+    error.should.equal('The arguments passed to a command are either invalid or malformed');
+    message.should.match(/__BAR__/);
+    message.should.match(/__HELLO_WORLD__/);
+    stacktrace.should.match(/errors-specs.js/);
+  });
 });
