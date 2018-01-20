@@ -546,17 +546,42 @@ describe('MJSONWP', async function () {
             addHandler(app, 'post', '/wd/hub/session/:sessionId/perform-actions', (req, res) => {
               res.status(500).json({
                 sessionId,
-                status: 6,
+                status: 7,
                 value: 'A problem occurred',
               });
             });
-            const {statusCode, message} = await request.post(`${sessionUrl}/actions`, {
+            const {statusCode, error} = await request.post(`${sessionUrl}/actions`, {
               json: {
                 actions: [1, 2, 3],
               }
             }).should.eventually.be.rejected;
+            const {message, error:w3cError, stacktrace} = error.value;
             statusCode.should.equal(HTTPStatusCodes.NOT_FOUND);
             message.should.match(/A problem occurred/);
+            w3cError.should.equal(errors.NoSuchElementError.error());
+            stacktrace.should.match(/mjsonwp.js/);
+          });
+
+          it('should work if a proxied request returns a W3C error response', async function () {
+            addHandler(app, 'post', '/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+              res.status(HTTPStatusCodes.NOT_FOUND).json({
+                value: {
+                  message: 'A MESSAGE',
+                  error: 'AN ERROR',
+                  stacktrace: 'Some stacktrace',
+                },
+              });
+            });
+            const {statusCode, error} = await request.post(`${sessionUrl}/actions`, {
+              json: {
+                actions: [1, 2, 3],
+              }
+            }).should.eventually.be.rejected;
+            const {message, error:w3cError, stacktrace} = error.value;
+            statusCode.should.equal(HTTPStatusCodes.NOT_FOUND);
+            message.should.equal('A MESSAGE');
+            w3cError.should.equal('AN ERROR');
+            stacktrace.should.equal('Some stacktrace');
           });
 
         });
