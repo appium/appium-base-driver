@@ -118,7 +118,7 @@ describe('errors', function () {
   });
   it('ProxyRequestError should have message and jsonwp', function () {
     new errors.ProxyRequestError()
-        .should.have.property('jsonwp');
+        .should.have.property('response');
     new errors.ProxyRequestError()
         .should.have.property('message');
   });
