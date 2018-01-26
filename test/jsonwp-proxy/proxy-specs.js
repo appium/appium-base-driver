@@ -38,8 +38,8 @@ function mockProxy (opts = {}) {
 
 describe('proxy', function () {
   it('should override default params', function () {
-    let j = mockProxy({server: '127.0.0.2'});
-    j.server.should.equal('127.0.0.2');
+    let j = mockProxy({host: '127.0.0.2'});
+    j.host.should.equal('127.0.0.2');
     j.port.should.equal(4444);
   });
   it('should save session id on session creation', async function () {
