@@ -511,7 +511,7 @@ describe('Protocol', async function () {
           driver.findElements = findElementsBackup;
         });
 
-        it(`should fail with a 408 error if it throws a TimeoutError exception`, async () => {
+        it(`should fail with a 408 error if it throws a TimeoutError exception`, async function () {
           sinon.stub(driver, 'setUrl', () => { throw new errors.TimeoutError; });
           let {statusCode, error} = await request({
             url: `${sessionUrl}/url`,
