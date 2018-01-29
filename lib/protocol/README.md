@@ -4,7 +4,7 @@ An abstraction of the Mobile JSON Wire Protocol ([spec](https://github.com/Selen
 
 ### Protocol Detection
 
-In the event that a session is created, and both MJSONWP _and_ W3C capabilities are provided, like this
+In the event that a session is requested, and both MJSONWP _and_ W3C capabilities are provided, like this
 
 ```json
 {
