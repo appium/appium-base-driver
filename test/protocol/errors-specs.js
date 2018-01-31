@@ -1,4 +1,4 @@
-import { errors, errorFromCode } from '../..';
+import { errors, errorFromMJSONWPStatusCode, isErrorType } from '../..';
 import { getResponseForW3CError } from '../../lib/protocol/errors';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -123,27 +123,27 @@ describe('errors', function () {
         .should.have.property('message');
   });
 });
-describe('errorFromCode', function () {
+describe('errorFromMJSONWPStatusCode', function () {
   for (let error of errorsList) {
     if (error.errorName !== 'NotYetImplementedError') {
       it(error.errorCode + ' should return correct error', function () {
-        errorFromCode(error.errorCode)
+        errorFromMJSONWPStatusCode(error.errorCode)
           .should.have.property('jsonwpCode', error.errorCode);
-        errorFromCode(error.errorCode)
+        errorFromMJSONWPStatusCode(error.errorCode)
           .should.have.property('message', error.errorMsg);
         if (!_.includes([13, 33], error.errorCode)) {
-          errorFromCode(error.errorCode, 'abcd')
+          errorFromMJSONWPStatusCode(error.errorCode, 'abcd')
             .should.have.property('jsonwpCode', error.errorCode);
-          errorFromCode(error.errorCode, 'abcd')
+          errorFromMJSONWPStatusCode(error.errorCode, 'abcd')
             .should.have.property('message', 'abcd');
         }
       });
     }
   }
   it('should throw unknown error for unknown code', function () {
-    errorFromCode(99)
+    errorFromMJSONWPStatusCode(99)
       .should.have.property('jsonwpCode', 13);
-    errorFromCode(99)
+    errorFromMJSONWPStatusCode(99)
       .should.have.property('message', 'An unknown server-side error occurred ' +
                                        'while processing the command.');
   });
@@ -198,7 +198,7 @@ describe('.getResponseForW3CError', function () {
     const [httpStatus, httpResponseBody] = getResponseForW3CError(noSuchElementError);
     httpStatus.should.equal(404);
     const {error, message, stacktrace} = httpResponseBody.value;
-    error.should.equal('An element could not be located on the page using the given search parameters');
+    error.should.equal('no such element');
     message.should.match(/specific error message/);
     stacktrace.should.match(/errors-specs.js/);
   });
@@ -211,5 +211,60 @@ describe('.getResponseForW3CError', function () {
     message.should.match(/__BAR__/);
     message.should.match(/__HELLO_WORLD__/);
     stacktrace.should.match(/errors-specs.js/);
+  });
+});
+describe('.getActualError', function () {
+  describe('MJSONWP', function () {
+    it('should map a status code 7 no such element error as a NoSuchElementError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: 'does not matter',
+        status: 7,
+      }).getActualError();
+      isErrorType(actualError, errors.NoSuchElementError).should.be.true;
+    });
+    it('should map a status code 10, StaleElementReferenceError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: 'Does not matter',
+        status: 10,
+      }).getActualError();
+      isErrorType(actualError, errors.StaleElementReferenceError).should.be.true;
+    });
+    it('should map an unknown error to UnknownError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: 'Does not matter',
+        status: -100
+      }).getActualError();
+      isErrorType(actualError, errors.UnknownError).should.be.true;
+    });
+  });
+
+  describe('W3C', function () {
+    it('should map a 404 no such element error as a NoSuchElementError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: {
+          error: errors.NoSuchElementError.error(),
+
+        },
+      }).getActualError();
+      isErrorType(actualError, errors.NoSuchElementError).should.be.true;
+    });
+    it('should map a 400 StaleElementReferenceError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: {
+          error: errors.StaleElementReferenceError.error(),
+
+        },
+      }).getActualError();
+      isErrorType(actualError, errors.StaleElementReferenceError).should.be.true;
+    });
+    it('should map an unknown error to UnknownError', function () {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+        value: {
+          error: 'Not a valid w3c JSON code'
+
+        },
+      }).getActualError();
+      isErrorType(actualError, errors.UnknownError).should.be.true;
+    });
   });
 });
