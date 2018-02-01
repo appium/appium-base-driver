@@ -389,20 +389,20 @@ describe('.getActualError', function () {
 
   describe('W3C', function () {
     it('should map a 404 no such element error as a NoSuchElementError', function () {
-      const actualError = new errors.ProxyRequestError('Error message does not matter', null, HTTPStatusCodes.NOT_FOUND, {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
         value: {
           error: errors.NoSuchElementError.error(),
         },
-      }).getActualError();
+      }, HTTPStatusCodes.NOT_FOUND).getActualError();
       isErrorType(actualError, errors.NoSuchElementError).should.be.true;
     });
     it('should map a 400 StaleElementReferenceError', function () {
-      const actualError = new errors.ProxyRequestError('Error message does not matter', null, HTTPStatusCodes.BAD_REQUEST, {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', {
         value: {
           error: errors.StaleElementReferenceError.error(),
 
         },
-      }).getActualError();
+      }, HTTPStatusCodes.BAD_REQUEST).getActualError();
       isErrorType(actualError, errors.StaleElementReferenceError).should.be.true;
     });
     it('should map an unknown error to UnknownError', function () {
