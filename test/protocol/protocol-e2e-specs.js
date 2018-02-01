@@ -437,7 +437,7 @@ describe('Protocol', async function () {
           message.should.match(/Parameters were incorrect/);
           stacktrace.should.match(/protocol.js/);
           w3cError.should.be.a.string;
-          w3cError.should.equal(errors.BadParametersError.error());
+          w3cError.should.equal(errors.InvalidArgumentError.error());
         });
 
         it(`should throw 404 Not Found exception if the command hasn't been implemented yet`, async function () {
@@ -452,7 +452,7 @@ describe('Protocol', async function () {
           message.should.match(/Method has not yet been implemented/);
           stacktrace.should.match(/protocol.js/);
           w3cError.should.be.a.string;
-          w3cError.should.equal(errors.UnknownCommandError.error());
+          w3cError.should.equal(errors.NotYetImplementedError.error());
           message.should.match(/Method has not yet been implemented/);
         });
 
