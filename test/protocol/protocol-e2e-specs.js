@@ -597,6 +597,50 @@ describe('Protocol', async function () {
             message.should.match(/A problem occurred/);
           });
 
+          it('should work if a proxied request returns a W3C error response', async function () {
+            addHandler(app, 'post', '/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+              res.status(404).json({
+                value: {
+                  error: 'no such element',
+                  message: 'does not make a difference',
+                  stacktrace: 'arbitrary stacktrace',
+                },
+              });
+            });
+            const {statusCode, message, error} = await request.post(`${sessionUrl}/actions`, {
+              json: {
+                actions: [1, 2, 3],
+              }
+            }).should.eventually.be.rejected;
+            statusCode.should.equal(HTTPStatusCodes.NOT_FOUND);
+            message.should.match(/does not make a difference/);
+            const {error:w3cError, stacktrace} = error.value;
+            w3cError.should.equal('no such element');
+            stacktrace.should.match(/arbitrary stacktrace/);
+          });
+
+          it('should work if a proxied request returns a W3C error response', async function () {
+            addHandler(app, 'post', '/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+              res.status(444).json({
+                value: {
+                  error: 'bogus error code',
+                  message: 'does not make a difference',
+                  stacktrace: 'arbitrary stacktrace',
+                },
+              });
+            });
+            const {statusCode, message, error} = await request.post(`${sessionUrl}/actions`, {
+              json: {
+                actions: [1, 2, 3],
+              }
+            }).should.eventually.be.rejected;
+            statusCode.should.equal(HTTPStatusCodes.INTERNAL_SERVER_ERROR);
+            message.should.match(/does not make a difference/);
+            const {error:w3cError, stacktrace} = error.value;
+            w3cError.should.equal('unknown error');
+            stacktrace.should.match(/arbitrary stacktrace/);
+          });
+
         });
       });
     });

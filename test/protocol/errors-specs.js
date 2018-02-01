@@ -3,6 +3,7 @@ import { getResponseForW3CError } from '../../lib/protocol/errors';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import _ from 'lodash';
+import HTTPStatusCodes from 'http-status-codes';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -388,16 +389,15 @@ describe('.getActualError', function () {
 
   describe('W3C', function () {
     it('should map a 404 no such element error as a NoSuchElementError', function () {
-      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', null, HTTPStatusCodes.NOT_FOUND, {
         value: {
           error: errors.NoSuchElementError.error(),
-
         },
       }).getActualError();
       isErrorType(actualError, errors.NoSuchElementError).should.be.true;
     });
     it('should map a 400 StaleElementReferenceError', function () {
-      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', null, HTTPStatusCodes.BAD_REQUEST, {
         value: {
           error: errors.StaleElementReferenceError.error(),
 
@@ -406,12 +406,12 @@ describe('.getActualError', function () {
       isErrorType(actualError, errors.StaleElementReferenceError).should.be.true;
     });
     it('should map an unknown error to UnknownError', function () {
-      const actualError = new errors.ProxyRequestError('Error message does not matter', {
+      const actualError = new errors.ProxyRequestError('Error message does not matter', null, {
         value: {
           error: 'Not a valid w3c JSON code'
 
         },
-      }).getActualError();
+      }, 456).getActualError();
       isErrorType(actualError, errors.UnknownError).should.be.true;
     });
   });
