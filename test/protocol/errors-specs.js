@@ -372,7 +372,6 @@ describe('.getResponseForW3CError', function () {
     message.should.equal('My custom message');
     error.should.equal('no such element');
     stacktrace.should.exist;
-
   });
 });
 describe('.getActualError', function () {
