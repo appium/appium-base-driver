@@ -1,10 +1,12 @@
 import logCommands from '../../../lib/basedriver/commands/log';
 import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import _ from 'lodash';
 
 
 chai.should();
+chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 const FIRST_LOGS = ['first', 'logs'];
@@ -23,7 +25,7 @@ const SUPPORTED_LOG_TYPES = {
 describe('log commands -', function () {
   beforeEach(function () {
     // reset the supported log types
-    logCommands.supportedLogTypes = [];
+    logCommands.supportedLogTypes = {};
   });
   describe('getLogTypes', function () {
     it('should return empty array when no supported log types', async function () {
@@ -44,7 +46,7 @@ describe('log commands -', function () {
       SUPPORTED_LOG_TYPES.two.getter.restore();
     });
     it('should throw error if log type not supported', async function () {
-      await logCommands.getLog('one').should.be.rejected;
+      await logCommands.getLog('one').should.eventually.be.rejected;
       SUPPORTED_LOG_TYPES.one.getter.called.should.be.false;
       SUPPORTED_LOG_TYPES.two.getter.called.should.be.false;
     });
