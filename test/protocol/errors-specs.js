@@ -127,8 +127,8 @@ let errorsList = [
   },
   {
     errorName: 'InvalidCoordinatesError',
-    errorMsg: 'The coordinates provided to an interactions operation are invalid',
-    error: 'invalid coordinates',
+    errorMsg: 'The coordinates provided to an interactions operation are invalid.',
+    error: 'invalid element coordinates',
   },
   {
     errorName: 'UnableToSetCookieError',
@@ -190,7 +190,7 @@ let errorsList = [
   },
   {
     errorName: 'NoSuchAlertError',
-    errorMsg: 'The target for mouse interaction is not in the browser’s viewport and cannot be brought into that viewport',
+    errorMsg: 'An attempt was made to operate on a modal dialog when one was not open.',
     error: 'no such alert',
   },
   {
@@ -223,7 +223,7 @@ let errorsList = [
 
 describe('errors', function () {
   for (let error of errorsList) {
-    it(error.errorName + ' should have a JSONWP code or W3C code and messg', function () {
+    it(error.errorName + ' should have a JSONWP code or W3C code and message', function () {
       if (error.errorCode) {
         new errors[error.errorName]()
           .should.have.property('jsonwpCode', error.errorCode);
