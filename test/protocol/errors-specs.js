@@ -305,7 +305,6 @@ describe('w3c Status Codes', function () {
       ['MoveTargetOutOfBoundsError', 500],
       ['NoSuchCookieError', 404],
       ['NoSuchElementError', 404],
-      ['NoSuchFrameError', 404],
       ['ScriptTimeoutError', 408],
       ['SessionNotCreatedError', 500],
       ['TimeoutError', 408],
