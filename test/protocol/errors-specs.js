@@ -128,7 +128,7 @@ let errorsList = [
   {
     errorName: 'InvalidCoordinatesError',
     errorMsg: 'The coordinates provided to an interactions operation are invalid.',
-    error: 'invalid element coordinates',
+    error: 'invalid coordinates',
   },
   {
     errorName: 'UnableToSetCookieError',
@@ -305,6 +305,7 @@ describe('w3c Status Codes', function () {
       ['MoveTargetOutOfBoundsError', 500],
       ['NoSuchCookieError', 404],
       ['NoSuchElementError', 404],
+      ['NoSuchFrameError', 404],
       ['ScriptTimeoutError', 408],
       ['SessionNotCreatedError', 500],
       ['TimeoutError', 408],
@@ -324,7 +325,7 @@ describe('w3c Status Codes', function () {
     }
 
     // Test an error that we expect to return 400 code
-    (new errors.NoSuchFrameError()).should.have.property('w3cStatus', 400);
+    (new errors.ElementClickInterceptedError()).should.have.property('w3cStatus', 400);
   });
 });
 describe('.getResponseForW3CError', function () {
