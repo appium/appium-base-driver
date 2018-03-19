@@ -34,3 +34,7 @@ export { statusCodes, getSummaryByCode };
 // W3C capabilities parser
 import { processCapabilities } from './lib/basedriver/capabilities';
 export { processCapabilities };
+
+// Web socket helpers
+import { addWebsocketHandler, removeWebsocketHandle } from './lib/express/websocket';
+export { addWebsocketHandler, removeWebsocketHandle };
