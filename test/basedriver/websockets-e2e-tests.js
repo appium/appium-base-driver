@@ -34,11 +34,11 @@ describe('Websockets (e2e)', function () {
           ws.send(WS_DATA);
         }
       });
-      const listenersCount = baseServer.listenerCount('upgrade');
+      const previousListenerCount = baseServer.listenerCount('upgrade');
       const endpoint = '/hello';
+      const timeout  = 5000;
       addWebsocketHandler(baseServer, endpoint, wss);
-      baseServer.listenerCount('upgrade').should.be.above(listenersCount);
-
+      baseServer.listenerCount('upgrade').should.be.above(previousListenerCount);
       await new B((resolve, reject) => {
         const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
         client.on('message', (data) => {
@@ -46,12 +46,21 @@ describe('Websockets (e2e)', function () {
           resolve();
         });
         client.on('error', reject);
-        setTimeout(() => reject(new Error(`Websocket message has not been received after 5 seconds timeout`)),
-                   5000);
+        setTimeout(() => reject(new Error('No websocket messages have been received after the timeout')),
+                   timeout);
       });
 
       removeWebsocketHandler(endpoint);
-      baseServer.listenerCount('upgrade').should.be.eql(listenersCount);
+      await new B((resolve, reject) => {
+        const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
+        client.on('message', (data) =>
+          reject(new Error(`No websocket messages are expected after the handler ` +
+                           `has been removed. '${data}' is received instead. `))
+        );
+        client.on('error', resolve);
+        setTimeout(resolve, timeout);
+      });
+      baseServer.listenerCount('upgrade').should.be.above(previousListenerCount);
     });
   });
 });
