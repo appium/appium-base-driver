@@ -39,7 +39,7 @@ describe('Websockets (e2e)', function () {
       const timeout  = 5000;
       await baseServer.addWebSocketHandler(endpoint, wss);
       baseServer.listenerCount('upgrade').should.be.above(previousListenerCount);
-      _.keys(await baseServer.getWebSocketHandlers()).length.should.be.above(0);
+      _.keys(await baseServer.getWebSocketHandlers()).length.should.eql(1);
       await new B((resolve, reject) => {
         const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
         client.on('message', (data) => {
@@ -52,7 +52,7 @@ describe('Websockets (e2e)', function () {
       });
 
       (await baseServer.removeWebSocketHandler(endpoint)).should.be.true;
-      _.keys(await baseServer.getWebSocketHandlers()).length.should.be.eql(0);
+      _.keys(await baseServer.getWebSocketHandlers()).length.should.eql(0);
       await new B((resolve, reject) => {
         const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
         client.on('message', (data) =>
