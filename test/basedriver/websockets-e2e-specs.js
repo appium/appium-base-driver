@@ -1,5 +1,5 @@
-import { server, routeConfiguringFunction,
-         addWebsocketHandler, removeWebsocketHandler } from '../..';
+import _ from 'lodash';
+import { server, routeConfiguringFunction} from '../..';
 import { FakeDriver } from '../protocol/fake-driver';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -37,8 +37,9 @@ describe('Websockets (e2e)', function () {
       const previousListenerCount = baseServer.listenerCount('upgrade');
       const endpoint = '/hello';
       const timeout  = 5000;
-      addWebsocketHandler(baseServer, endpoint, wss);
+      await baseServer.addWebSocketHandler(endpoint, wss);
       baseServer.listenerCount('upgrade').should.be.above(previousListenerCount);
+      _.keys(await baseServer.getWebSocketHandlers()).length.should.be.above(0);
       await new B((resolve, reject) => {
         const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
         client.on('message', (data) => {
@@ -50,7 +51,8 @@ describe('Websockets (e2e)', function () {
                    timeout);
       });
 
-      removeWebsocketHandler(endpoint);
+      (await baseServer.removeWebSocketHandler(endpoint)).should.be.true;
+      _.keys(await baseServer.getWebSocketHandlers()).length.should.be.eql(0);
       await new B((resolve, reject) => {
         const client = new WebSocket(`ws://localhost:${PORT}/ws${endpoint}`);
         client.on('message', (data) =>
