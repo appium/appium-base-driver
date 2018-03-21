@@ -36,5 +36,5 @@ import { processCapabilities } from './lib/basedriver/capabilities';
 export { processCapabilities };
 
 // Web socket helpers
-import { addWebsocketHandler, removeWebsocketHandle } from './lib/express/websocket';
-export { addWebsocketHandler, removeWebsocketHandle };
+import { addWebsocketHandler, removeWebsocketHandler } from './lib/express/websocket';
+export { addWebsocketHandler, removeWebsocketHandler };
