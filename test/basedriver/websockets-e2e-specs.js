@@ -3,7 +3,7 @@ import { server, routeConfiguringFunction,
 import { FakeDriver } from '../protocol/fake-driver';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import B from 'bluebird';
 
 chai.use(chaiAsPromised);
