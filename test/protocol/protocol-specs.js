@@ -10,10 +10,7 @@ chai.use(chaiAsPromised);
 
 describe('Protocol', async function () {
 
-  //TODO: more tests!:
-  // Unknown commands should return 404
-
-  describe('direct to driver', function () {
+  describe('#parseProtocol', function () {
     it('should parse {protocol: "MJSONWP"} as MJSONWP', function () {
       parseProtocol({protocol: 'MJSONWP', value: undefined}).should.eql({isW3C: false, isMJSONWP: true, value: undefined});
     });
