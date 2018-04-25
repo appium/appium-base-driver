@@ -21,6 +21,8 @@ export { Protocol, routeConfiguringFunction, errors, isErrorType,
 // Express exports
 import { STATIC_DIR } from './lib/express/static';
 export { STATIC_DIR };
+import { storeFile } from './lib/express/download';
+export { storeFile };
 import { server } from './lib/express/server';
 export { server };
 

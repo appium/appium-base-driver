@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { server, routeConfiguringFunction,
          DEFAULT_WS_PATHNAME_PREFIX } from '../..';
-import { FakeDriver } from '../protocol/fake-driver';
+import { FakeDriver } from '../fake-driver';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import WebSocket from 'ws';
