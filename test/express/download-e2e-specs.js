@@ -53,8 +53,8 @@ describe('Download', async function () {
       try {
         await fs.writeFile(tmpFilePath, fileContent);
         const sid = await storeFile(tmpFilePath);
-        await B.delay(6000);
-        await cleanupOutdatedEntries(5000);
+        await B.delay(2000);
+        await cleanupOutdatedEntries(1000);
         await request({
           url: `http://localhost:${PORT}/download?sid=${sid}`,
           method: 'GET',
