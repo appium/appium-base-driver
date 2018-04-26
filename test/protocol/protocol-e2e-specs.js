@@ -11,8 +11,11 @@ import HTTPStatusCodes from 'http-status-codes';
 import { createProxyServer, addHandler } from './helpers';
 import { MJSONWP_ELEMENT_KEY, W3C_ELEMENT_KEY } from '../../lib/protocol/protocol';
 
+
 let should = chai.should();
 chai.use(chaiAsPromised);
+
+const baseUrl = 'http://localhost:8181/wd/hub';
 
 describe('Protocol', async function () {
 
@@ -42,7 +45,7 @@ describe('Protocol', async function () {
 
     it('should proxy to driver and return valid jsonwp response', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         json: {url: 'http://google.com'}
       });
@@ -55,7 +58,7 @@ describe('Protocol', async function () {
 
     it('should assume requests without a Content-Type are json requests', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         body: JSON.stringify({url: 'http://google.com'}),
       });
@@ -68,7 +71,7 @@ describe('Protocol', async function () {
 
     it('should respond to x-www-form-urlencoded as well as json requests', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         form: {url: 'http://google.com'}
       });
@@ -81,7 +84,7 @@ describe('Protocol', async function () {
 
     it('should include url request parameters for methods to use - sessionid', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/back',
+        url: `${baseUrl}/session/foo/back`,
         method: 'POST',
         json: {},
         simple: false,
@@ -96,7 +99,7 @@ describe('Protocol', async function () {
 
     it('should include url request parameters for methods to use - elementid', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/click',
+        url: `${baseUrl}/session/foo/element/bar/click`,
         method: 'POST',
         json: {}
       });
@@ -106,7 +109,7 @@ describe('Protocol', async function () {
 
     it('should include url req params in the order: custom, element, session', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/attribute/baz',
+        url: `${baseUrl}/session/foo/element/bar/attribute/baz`,
         method: 'GET',
         json: {}
       });
@@ -117,7 +120,7 @@ describe('Protocol', async function () {
 
     it('should respond with 400 Bad Request if parameters missing', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         json: {},
         resolveWithFullResponse: true,
@@ -130,13 +133,13 @@ describe('Protocol', async function () {
 
     it('should reject requests with a badly formatted body and not crash', async function () {
       await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         json: "oh hello"
       }).should.eventually.be.rejected;
 
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         json: {url: 'http://google.com'}
       });
@@ -150,7 +153,7 @@ describe('Protocol', async function () {
 
     it('should get 404 for bad routes', async function () {
       await request({
-        url: 'http://localhost:8181/wd/hub/blargimarg',
+        url: `${baseUrl}/blargimarg`,
         method: 'GET'
       }).should.eventually.be.rejectedWith("404");
     });
@@ -159,7 +162,7 @@ describe('Protocol', async function () {
     // https://github.com/appium/node-mobile-json-wire-protocol/issues/3
     it('4xx responses should have content-type of text/plain', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/blargimargarita',
+        url: `${baseUrl}/blargimargarita`,
         method: 'GET',
         resolveWithFullResponse: true,
         simple: false // 404 errors fulfill the promise, rather than rejecting
@@ -170,7 +173,7 @@ describe('Protocol', async function () {
 
     it('should throw not yet implemented for unfilledout commands', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/location',
+        url: `${baseUrl}/session/foo/element/bar/location`,
         method: 'GET',
         json: true,
         resolveWithFullResponse: true,
@@ -189,7 +192,7 @@ describe('Protocol', async function () {
 
     it('should throw not implemented for ignored commands', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/buttonup',
+        url: `${baseUrl}/session/foo/buttonup`,
         method: 'POST',
         json: {},
         resolveWithFullResponse: true,
@@ -208,7 +211,7 @@ describe('Protocol', async function () {
 
     it('should get 400 for bad parameters', async function () {
       await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/url',
+        url: `${baseUrl}/session/foo/url`,
         method: 'POST',
         json: {}
       }).should.eventually.be.rejectedWith("400");
@@ -216,13 +219,13 @@ describe('Protocol', async function () {
 
     it('should ignore special extra payload params in the right contexts', async function () {
       await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+        url: `${baseUrl}/session/foo/element/bar/value`,
         method: 'POST',
         json: {id: 'baz', sessionId: 'lol', value: ['a']}
       });
 
       await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+        url: `${baseUrl}/session/foo/element/bar/value`,
         method: 'POST',
         json: {id: 'baz'}
       }).should.eventually.be.rejectedWith("400");
@@ -230,7 +233,7 @@ describe('Protocol', async function () {
       // make sure adding the optional 'id' doesn't clobber a route where we
       // have an actual required 'id'
       await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/frame',
+        url: `${baseUrl}/session/foo/frame`,
         method: 'POST',
         json: {id: 'baz'}
       });
@@ -238,7 +241,7 @@ describe('Protocol', async function () {
 
     it('should return the correct error even if driver does not throw', async function () {
       let res =  await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/appium/receive_async_response',
+        url: `${baseUrl}/session/foo/appium/receive_async_response`,
         method: 'POST',
         json: {response: 'baz'},
         resolveWithFullResponse: true,
@@ -258,7 +261,7 @@ describe('Protocol', async function () {
     describe('w3c sendkeys migration', function () {
       it('should accept value for sendkeys', async function () {
         let res = await request({
-          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          url: `${baseUrl}/session/foo/element/bar/value`,
           method: 'POST',
           json: {value: "text to type"}
         });
@@ -267,7 +270,7 @@ describe('Protocol', async function () {
       });
       it('should accept text for sendkeys', async function () {
         let res = await request({
-          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          url: `${baseUrl}/session/foo/element/bar/value`,
           method: 'POST',
           json: {text: "text to type"}
         });
@@ -276,7 +279,7 @@ describe('Protocol', async function () {
       });
       it('should accept value and text for sendkeys, and use value', async function () {
         let res = await request({
-          url: 'http://localhost:8181/wd/hub/session/foo/element/bar/value',
+          url: `${baseUrl}/session/foo/element/bar/value`,
           method: 'POST',
           json: {value: "text to type", text: "text to ignore"}
         });
@@ -289,7 +292,7 @@ describe('Protocol', async function () {
       describe('optional', function () {
         it('should allow moveto with element', async function () {
           let res = await request({
-            url: 'http://localhost:8181/wd/hub/session/foo/moveto',
+            url: `${baseUrl}/session/foo/moveto`,
             method: 'POST',
             json: {element: '3'}
           });
@@ -298,7 +301,7 @@ describe('Protocol', async function () {
         });
         it('should allow moveto with xoffset/yoffset', async function () {
           let res = await request({
-            url: 'http://localhost:8181/wd/hub/session/foo/moveto',
+            url: `${baseUrl}/session/foo/moveto`,
             method: 'POST',
             json: {xoffset: 42, yoffset: 17}
           });
@@ -309,7 +312,7 @@ describe('Protocol', async function () {
       describe('required', function () {
         it('should allow removeApp with appId', async function () {
           let res = await request({
-            url: 'http://localhost:8181/wd/hub/session/foo/appium/device/remove_app',
+            url: `${baseUrl}/session/foo/appium/device/remove_app`,
             method: 'POST',
             json: {appId: 42}
           });
@@ -318,7 +321,7 @@ describe('Protocol', async function () {
         });
         it('should allow removeApp with bundleId', async function () {
           let res = await request({
-            url: 'http://localhost:8181/wd/hub/session/foo/appium/device/remove_app',
+            url: `${baseUrl}/session/foo/appium/device/remove_app`,
             method: 'POST',
             json: {bundleId: 42}
           });
@@ -329,10 +332,9 @@ describe('Protocol', async function () {
     });
 
     describe('default param wrap', function () {
-
       it('should wrap', async function () {
         let res = await request({
-          url: 'http://localhost:8181/wd/hub/session/foo/touch/perform',
+          url: `${baseUrl}/session/foo/touch/perform`,
           method: 'POST',
           json: [{"action":"tap", "options":{"element":"3"}}]
         });
@@ -341,7 +343,7 @@ describe('Protocol', async function () {
 
       it('should not wrap twice', async function () {
         let res = await request({
-          url: 'http://localhost:8181/wd/hub/session/foo/touch/perform',
+          url: `${baseUrl}/session/foo/touch/perform`,
           method: 'POST',
           json: {actions: [{"action":"tap", "options":{"element":"3"}}]}
         });
@@ -354,48 +356,65 @@ describe('Protocol', async function () {
       let desiredCapabilities = {a: 'b'};
       let requiredCapabilities = {c: 'd'};
       let capabilities = {e: 'f'};
-      let baseUrl = `http://localhost:8181/wd/hub/session`;
+
+      let sessionId;
+
+      beforeEach(function () {
+        sessionId = null;
+      });
+      afterEach(async function () {
+        if (sessionId) {
+          await request.delete(`${baseUrl}/session/${sessionId}`);
+        }
+      });
 
       it('should allow create session with desired caps (MJSONWP)', async function () {
         let res = await request({
-          url: baseUrl,
+          url: `${baseUrl}/session`,
           method: 'POST',
           json: {desiredCapabilities}
         });
+        sessionId = res.sessionId;
+
         res.status.should.equal(0);
         res.value.should.eql(desiredCapabilities);
       });
       it('should allow create session with desired and required caps', async function () {
         let res = await request({
-          url: baseUrl,
+          url: `${baseUrl}/session`,
           method: 'POST',
           json: {
             desiredCapabilities,
             requiredCapabilities
           }
         });
+        sessionId = res.sessionId;
+
         res.status.should.equal(0);
         res.value.should.eql(_.extend({}, desiredCapabilities, requiredCapabilities));
       });
       it('should fail to create session without capabilities or desiredCapabilities', async function () {
         await request({
-          url: baseUrl,
+          url: `${baseUrl}/session`,
           method: 'POST',
           json: {},
         }).should.eventually.be.rejectedWith('400');
       });
       it('should allow create session with capabilities (W3C)', async function () {
-        let {status, value, sessionId} = await request({
-          url: baseUrl,
+        // let {status, value, sessionId} = await request({
+        const res = await request({
+          url: `${baseUrl}/session`,
           method: 'POST',
           json: {
             capabilities,
           }
         });
-        should.not.exist(status);
-        should.not.exist(sessionId);
-        value.capabilities.should.eql(capabilities);
-        value.sessionId.should.exist;
+        sessionId = res.sessionId;
+
+        should.not.exist(res.status);
+        should.not.exist(res.sessionId);
+        res.value.capabilities.should.eql(capabilities);
+        res.value.sessionId.should.exist;
       });
       it('should fall back to MJSONWP if driver does not support W3C yet', async function () {
         const createSessionStub = sinon.stub(driver, 'createSession').callsFake(function (capabilities) {
@@ -407,8 +426,9 @@ describe('Protocol', async function () {
           platformName: 'Fake',
           deviceName: 'Fake',
         };
-        let {status, value, sessionId} = await request({
-          url: baseUrl,
+        // let {status, value, sessionId} = await request({
+        const res = await request({
+          url: `${baseUrl}/session`,
           method: 'POST',
           json: {
             desiredCapabilities: caps,
@@ -418,9 +438,11 @@ describe('Protocol', async function () {
             },
           }
         });
-        should.exist(status);
-        should.exist(sessionId);
-        value.should.eql(caps);
+        sessionId = res.sessionId;
+
+        should.exist(res.status);
+        should.exist(res.sessionId);
+        res.value.should.eql(caps);
         createSessionStub.restore();
       });
 
@@ -433,22 +455,16 @@ describe('Protocol', async function () {
           firstMatch: [{}],
         };
         let sessionUrl;
-        let sessionId;
 
         beforeEach(async function () {
           // Start a session
-          let {value} = await request.post(baseUrl, {
+          let {value} = await request.post(`${baseUrl}/session`, {
             json: {
               capabilities: w3cCaps,
             }
           });
           sessionId = value.sessionId;
-          sessionUrl = `${baseUrl}/${sessionId}`;
-        });
-
-        afterEach(async function () {
-          // Delete the session
-          await request.delete(sessionUrl);
+          sessionUrl = `${baseUrl}/session/${sessionId}`;
         });
 
         it(`should throw 400 Bad Parameters exception if the parameters are bad`, async function () {
@@ -572,9 +588,10 @@ describe('Protocol', async function () {
           delete driver.performActions;
         });
 
-        describe('jwproxy', function () {
+        describe.skip('jwproxy', function () {
           let port = 56562;
           let server, jwproxy, app;
+
           beforeEach(function () {
             let res = createProxyServer(sessionId, port);
             server = res.server;
@@ -695,7 +712,7 @@ describe('Protocol', async function () {
 
     it('should handle commands with no response values', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/forward',
+        url: `${baseUrl}/session/foo/forward`,
         method: 'POST',
         json: true,
       });
@@ -708,7 +725,7 @@ describe('Protocol', async function () {
 
     it('should allow empty string response values', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/element/bar/text',
+        url: `${baseUrl}/session/foo/element/bar/text`,
         method: 'GET',
         json: true,
       });
@@ -721,7 +738,7 @@ describe('Protocol', async function () {
 
     it('should send 500 response and an Unknown object for rejected commands', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo/refresh',
+        url: `${baseUrl}/session/foo/refresh`,
         method: 'POST',
         json: true,
         resolveWithFullResponse: true,
@@ -741,7 +758,7 @@ describe('Protocol', async function () {
 
     it('should not throw UnknownError when known', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session/foo',
+        url: `${baseUrl}/session/foo`,
         method: 'GET',
         json: true,
         resolveWithFullResponse: true,
@@ -775,9 +792,9 @@ describe('Protocol', async function () {
       driver.sessionId = null;
     });
 
-    it('returns null SessionId for commands without sessionIds', async function () {
+    it('should return null SessionId for commands without sessionIds', async function () {
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/status',
+        url: `${baseUrl}/status`,
         method: 'GET',
         json: true,
       });
@@ -790,7 +807,7 @@ describe('Protocol', async function () {
       driver.sessionId = sessionId;
 
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'}
       });
@@ -803,7 +820,7 @@ describe('Protocol', async function () {
       let sessionId = 'Vader Sessions';
 
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -820,7 +837,7 @@ describe('Protocol', async function () {
       driver.sessionId = 'recession';
 
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -837,7 +854,7 @@ describe('Protocol', async function () {
       driver.sessionId = sessionId;
 
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/refresh`,
+        url: `${baseUrl}/session/${sessionId}/refresh`,
         method: 'POST',
         json: true,
         resolveWithFullResponse: true,
@@ -858,7 +875,7 @@ describe('Protocol', async function () {
     it('should return a new session ID on create', async function () {
 
       let res = await request({
-        url: 'http://localhost:8181/wd/hub/session',
+        url: `${baseUrl}/session`,
         method: 'POST',
         json: {desiredCapabilities: {greeting: 'hello'}, requiredCapabilities: {valediction: 'bye'}}
       });
@@ -890,7 +907,7 @@ describe('Protocol', async function () {
     it('should give a nice error if proxying is set but no proxy function exists', async function () {
       driver.canProxy = () => { return false; };
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -914,7 +931,7 @@ describe('Protocol', async function () {
         throw new Error("foo");
       };
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -939,7 +956,7 @@ describe('Protocol', async function () {
         throw  new errors.ProxyRequestError(`Could not proxy command to remote server. `, jsonwp);
       };
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -959,7 +976,7 @@ describe('Protocol', async function () {
         res.status(200).json({custom: 'data'});
       };
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -973,7 +990,7 @@ describe('Protocol', async function () {
     it('should avoid jsonwp proxying when path matches avoidance list', async function () {
       driver.getProxyAvoidList = () => { return [['POST', new RegExp('^/session/[^/]+/url$')]]; };
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+        url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         json: {url: 'http://google.com'},
         resolveWithFullResponse: true,
@@ -992,7 +1009,7 @@ describe('Protocol', async function () {
       async function badProxyAvoidanceList (list) {
         driver.getProxyAvoidList = () => { return list; };
         let res = await request({
-          url: `http://localhost:8181/wd/hub/session/${sessionId}/url`,
+          url: `${baseUrl}/session/${sessionId}/url`,
           method: 'POST',
           json: {url: 'http://google.com'},
           resolveWithFullResponse: true,
@@ -1018,7 +1035,7 @@ describe('Protocol', async function () {
       driver.getProxyAvoidList = () => { return [['POST', new RegExp('')]]; };
 
       let res = await request({
-        url: `http://localhost:8181/wd/hub/status`,
+        url: `${baseUrl}/status`,
         method: 'GET',
         json: true,
         resolveWithFullResponse: true,
@@ -1038,7 +1055,7 @@ describe('Protocol', async function () {
 
       driver.sessionId.should.equal(sessionId);
       let res = await request({
-        url: `http://localhost:8181/wd/hub/session/${sessionId}`,
+        url: `${baseUrl}/session/${sessionId}`,
         method: 'DELETE',
         json: true,
         resolveWithFullResponse: true,
