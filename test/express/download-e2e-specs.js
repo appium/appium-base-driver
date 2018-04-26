@@ -37,7 +37,7 @@ describe('Download', async function () {
         const sid = await storeFile(tmpFilePath);
         sid.should.not.be.empty;
         const res = await request({
-          url: `http://localhost:${PORT}/download?sid=${sid}`,
+          url: `http://localhost:${PORT}/appium/download/${sid}`,
           method: 'GET',
         });
         res.should.eql('appium');
@@ -56,7 +56,7 @@ describe('Download', async function () {
         await B.delay(2000);
         await cleanupOutdatedEntries(1000);
         await request({
-          url: `http://localhost:${PORT}/download?sid=${sid}`,
+          url: `http://localhost:${PORT}/appium/download/${sid}`,
           method: 'GET',
         }).should.eventually.be.rejectedWith('404');
       } finally {
