@@ -398,7 +398,7 @@ describe('Protocol', async function () {
         value.sessionId.should.exist;
       });
       it('should fall back to MJSONWP if driver does not support W3C yet', async function () {
-        const createSessionStub = sinon.stub(driver, 'createSession', (capabilities) => {
+        const createSessionStub = sinon.stub(driver, 'createSession').callsFake(function (capabilities) {
           driver.sessionId = null;
           return BaseDriver.prototype.createSession.call(driver, capabilities);
         });
@@ -538,7 +538,9 @@ describe('Protocol', async function () {
         });
 
         it(`should fail with a 408 error if it throws a TimeoutError exception`, async function () {
-          sinon.stub(driver, 'setUrl', () => { throw new errors.TimeoutError; });
+          let setUrlStub = sinon.stub(driver, 'setUrl').callsFake(function () {
+            throw new errors.TimeoutError;
+          });
           let {statusCode, error} = await request({
             url: `${sessionUrl}/url`,
             method: 'POST',
@@ -554,7 +556,7 @@ describe('Protocol', async function () {
           w3cError.should.equal(errors.TimeoutError.error());
           message.should.match(/An operation did not complete before its timeout expired/);
 
-          sinon.restore(driver, 'setUrl');
+          setUrlStub.restore();
         });
 
         it(`should pass with 200 HTTP status code if the command returns a value`, async function () {
