@@ -15,7 +15,8 @@ import { MJSONWP_ELEMENT_KEY, W3C_ELEMENT_KEY } from '../../lib/protocol/protoco
 let should = chai.should();
 chai.use(chaiAsPromised);
 
-const baseUrl = 'http://localhost:8181/wd/hub';
+const serverPort = 8181;
+const baseUrl = `http://localhost:${serverPort}/wd/hub`;
 
 describe('Protocol', async function () {
 
@@ -36,11 +37,11 @@ describe('Protocol', async function () {
     before(async function () {
       driver = new FakeDriver();
       driver.sessionId = 'foo';
-      mjsonwpServer = await server(routeConfiguringFunction(driver), 8181);
+      mjsonwpServer = await server(routeConfiguringFunction(driver), serverPort);
     });
 
     after(async function () {
-      mjsonwpServer.close();
+      await mjsonwpServer.close();
     });
 
     it('should proxy to driver and return valid jsonwp response', async function () {
@@ -115,7 +116,6 @@ describe('Protocol', async function () {
       });
       res.status.should.equal(0);
       res.value.should.eql(["baz", "bar", "foo"]);
-
     });
 
     it('should respond with 400 Bad Request if parameters missing', async function () {
@@ -126,7 +126,6 @@ describe('Protocol', async function () {
         resolveWithFullResponse: true,
         simple: false
       });
-
       res.statusCode.should.equal(400);
       res.body.should.contain("url");
     });
@@ -588,12 +587,12 @@ describe('Protocol', async function () {
           delete driver.performActions;
         });
 
-        describe.skip('jwproxy', function () {
-          let port = 56562;
+        describe('jwproxy', function () {
+          const port = 56562;
           let server, jwproxy, app;
 
           beforeEach(function () {
-            let res = createProxyServer(sessionId, port);
+            const res = createProxyServer(sessionId, port);
             server = res.server;
             app = res.app;
             jwproxy = new JWProxy({host: 'localhost', port});
@@ -601,9 +600,9 @@ describe('Protocol', async function () {
             driver.performActions = async (actions) => await jwproxy.command('/perform-actions', 'POST', actions);
           });
 
-          afterEach(function () {
-            server.close();
+          afterEach(async function () {
             delete driver.performActions;
+            await server.close();
           });
 
           it('should work if a proxied request returns a response with status 200', async function () {
@@ -687,6 +686,7 @@ describe('Protocol', async function () {
 
           it('should return an error if a proxied request returns a W3C error response', async function () {
             addHandler(app, 'post', '/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+              res.set('Connection', 'close');
               res.status(444).json({
                 value: {
                   error: 'bogus error code',
@@ -781,11 +781,11 @@ describe('Protocol', async function () {
     let mjsonwpServer;
 
     before(async function () {
-      mjsonwpServer = await server(routeConfiguringFunction(driver), 8181);
+      mjsonwpServer = await server(routeConfiguringFunction(driver), serverPort);
     });
 
     after(async function () {
-      mjsonwpServer.close();
+      await mjsonwpServer.close();
     });
 
     afterEach(function () {
@@ -897,11 +897,11 @@ describe('Protocol', async function () {
       driver.proxyActive = () => { return true; };
       driver.canProxy = () => { return true; };
 
-      mjsonwpServer = await server(routeConfiguringFunction(driver), 8181);
+      mjsonwpServer = await server(routeConfiguringFunction(driver), serverPort);
     });
 
     afterEach(async function () {
-      mjsonwpServer.close();
+      await mjsonwpServer.close();
     });
 
     it('should give a nice error if proxying is set but no proxy function exists', async function () {
