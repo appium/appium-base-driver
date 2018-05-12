@@ -30,8 +30,18 @@ describe('Protocol', async function () {
       const value = {hello: 'world', goodbye: 'whirl'};
       parseProtocol({protocol: 'MJSONWP', value}).should.eql({isW3C: false, isMJSONWP: true, value});
     });
-    it('should throw if {protocol: "MJSONWP", error}', function () {
-      (() => parseProtocol({protocol: 'W3C', error: new Error('some error')})).should.throw(/some error/);
+    it('should return an error if {protocol: "W3C", error}', function () {
+      parseProtocol({
+        protocol: 'W3C',
+        error: new Error('some error')
+      }).should.eql({
+        isMJSONWP: false,
+        isW3C: true,
+        value: {value: {
+          error: undefined,
+          message: 'some error'
+        }}
+      });
     });
   });
 });
