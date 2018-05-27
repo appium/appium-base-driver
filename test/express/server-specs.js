@@ -36,17 +36,17 @@ describe('server', function () {
     errorStub = sinon.stub(console, 'error');
     function configureRoutes (app) {
       app.get('/', (req, res) => {
-        res.header['content-type'] = 'text/html';
+        res.header['Content-Type'] = 'text/html';
         res.status(200).send('Hello World!');
       });
       app.get('/wd/hub/python', (req, res) => {
-        res.status(200).send(req.headers['content-type']);
+        res.status(200).send(req.headers['Content-Type']);
       });
       app.get('/error', () => {
         throw new Error('hahaha');
       });
       app.get('/pause', async (req, res) => {
-        res.header['content-type'] = 'text/html';
+        res.header['Content-Type'] = 'text/html';
         await B.delay(1000);
         res.status(200).send('We have waited!');
       });
@@ -66,11 +66,11 @@ describe('server', function () {
     let body = await request({
       url: 'http://localhost:8181/wd/hub/python',
       headers: {
-        'user-agent': 'Python',
-        'content-type': 'application/x-www-form-urlencoded'
+        'User-Agent': 'Python',
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
-    body.should.eql('application/json');
+    body.should.eql('application/json; charset=utf-8');
   });
   it('should catch errors in the catchall', async function () {
     await request('http://localhost:8181/error')
