@@ -167,7 +167,7 @@ describe('Protocol', async function () {
         simple: false // 404 errors fulfill the promise, rather than rejecting
       });
 
-      res.headers['content-type'].should.include('text/plain');
+      res.headers['Content-Type'].should.include('text/plain');
     });
 
     it('should throw not yet implemented for unfilledout commands', async function () {

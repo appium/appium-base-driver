@@ -25,11 +25,11 @@ import { server } from 'appium-base-driver';
 // configure the routes
 function configureRoutes (app) {
   app.get('/hello', (req, res) => {
-    res.header['content-type'] = 'text/html';
+    res.header['Content-Type'] = 'text/html';
     res.status(200).send('Hello');
   });
   app.get('/world', (req, res) => {
-    res.header['content-type'] = 'text/html';
+    res.header['Content-Type'] = 'text/html';
     res.status(200).send('World');
   });
 }
