@@ -3,8 +3,9 @@
 // BaseDriver exports
 import BaseDriver from './lib/basedriver/driver';
 import DeviceSettings from './lib/basedriver/device-settings';
+import MJpegStream from './lib/basedriver/mjpeg';
 
-export { BaseDriver, DeviceSettings };
+export { BaseDriver, DeviceSettings, MJpegStream };
 export default BaseDriver;
 
 // MJSONWP exports
