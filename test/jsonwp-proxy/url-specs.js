@@ -97,6 +97,12 @@ describe('proxying partial urls', function () {
     let proxyUrl = j.getUrlForProxy(incomingUrl);
     proxyUrl.should.equal('http://localhost:4444/wd/hub/session/barbaz/cookie/session-something-or-other');
   });
+  it(`should proxy session commands when '/session' is in the url and not base on the original url`, function () {
+    let incomingUrl = '/session/82a9b7da-faaf-4a1d-8ef3-5e4fb5812200/cookie/session-something-or-other';
+    let j = new JWProxy({sessionId: 'barbaz'});
+    let proxyUrl = j.getUrlForProxy(incomingUrl);
+    proxyUrl.should.equal('http://localhost:4444/wd/hub/session/barbaz/cookie/session-something-or-other');
+  });
   it('should error session commands without /session without session id', function () {
     let incomingUrl = '/element';
     let j = new JWProxy();
