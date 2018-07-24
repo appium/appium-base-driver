@@ -63,7 +63,102 @@ describe('ImageElement', function () {
     });
   });
 
-  // TODO write .click tests
+  describe('.click', function () {
+    it('should reject an invalid tap strategy', async function () {
+      const d = new BaseDriver();
+      const el = new ImageElement(defTemplate, defRect);
+      await d.settings.update({imageElementTapStrategy: 'bad'});
+      await el.click(d).should.eventually.be.rejectedWith(/Incorrect imageElementTapStrategy/);
+    });
+    it('should try to check for image element staleness, and throw if stale', async function () {
+      const d = new BaseDriver();
+      sinon.stub(d, 'findByImage').throws();
+      const el = new ImageElement(defTemplate, defRect);
+      // we need to check for staleness if explicitly requested to do so
+      await d.settings.update({
+        checkForImageElementStaleness: true,
+        autoUpdateImageElementPosition: false
+      });
+      await el.click(d).should.eventually.be.rejectedWith(/no longer attached/);
+
+      // and also if we are updating the element position
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+        autoUpdateImageElementPosition: true
+      });
+      await el.click(d).should.eventually.be.rejectedWith(/no longer attached/);
+    });
+    it('should auto-update element position if requested', async function () {
+      const d = new BaseDriver();
+      d.performActions = _.noop;
+      sinon.stub(d, 'performActions');
+      const el = new ImageElement(defTemplate, defRect);
+      const newRect = {...defRect, x: defRect.x + 10, y: defRect.y + 5};
+      const elPos2 = new ImageElement(defTemplate, newRect);
+      sinon.stub(d, 'findByImage').returns(elPos2);
+      await d.settings.update({
+        autoUpdateImageElementPosition: true,
+      });
+      el.rect.should.not.eql(newRect);
+      await el.click(d);
+      el.rect.should.eql(newRect);
+    });
+    it('should tap the center of an element using w3c actions by default', async function () {
+      const d = new BaseDriver();
+      d.performActions = _.noop;
+      const actionStub = sinon.stub(d, 'performActions');
+      const el = new ImageElement(defTemplate, defRect);
+      // skip the staleness check for this test
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+      });
+      await el.click(d);
+      const pointerMoveAction = actionStub.args[0][0][0].actions[0];
+      pointerMoveAction.x.should.equal(el.center.x);
+      pointerMoveAction.y.should.equal(el.center.y);
+    });
+    it('should fall back to touchactions if w3c actions do not exist on driver', async function () {
+      const d = new BaseDriver();
+      d.performTouch = _.noop;
+      const actionStub = sinon.stub(d, 'performTouch');
+      const el = new ImageElement(defTemplate, defRect);
+      // skip the staleness check for this test
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+      });
+      await el.click(d);
+      const action = actionStub.args[0][0][0].options;
+      action.x.should.equal(el.center.x);
+      action.y.should.equal(el.center.y);
+    });
+    it('should use touchactions if requested', async function () {
+      const d = new BaseDriver();
+      d.performActions = _.noop;
+      const w3cStub = sinon.stub(d, 'performActions');
+      d.performTouch = _.noop;
+      const touchStub = sinon.stub(d, 'performTouch');
+      const el = new ImageElement(defTemplate, defRect);
+      // skip the staleness check for this test
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+        imageElementTapStrategy: 'touchActions',
+      });
+      await el.click(d);
+      const action = touchStub.args[0][0][0].options;
+      action.x.should.equal(el.center.x);
+      action.y.should.equal(el.center.y);
+      w3cStub.callCount.should.eql(0);
+    });
+    it('should throw if driver does not implement any type of action', async function () {
+      const d = new BaseDriver();
+      const el = new ImageElement(defTemplate, defRect);
+      // skip the staleness check for this test
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+      });
+      await el.click(d).should.eventually.be.rejectedWith(/does not seem to implement/);
+    });
+  });
 
   describe('#execute', function () {
     const imgEl = new ImageElement(defTemplate, defRect);
