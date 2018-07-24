@@ -7,7 +7,7 @@ import { IMAGE_ELEMENT_PREFIX } from '../../lib/protocol/protocol';
 import sinon from 'sinon';
 
 
-chai.should();
+const should = chai.should();
 chai.use(chaiAsPromised);
 
 
@@ -157,6 +157,39 @@ describe('ImageElement', function () {
         checkForImageElementStaleness: false,
       });
       await el.click(d).should.eventually.be.rejectedWith(/does not seem to implement/);
+    });
+    it('should proxy action if proxying on and action route is not avoided', async function () {
+      const d = new BaseDriver();
+      sinon.stub(d, 'proxyActive')
+        .onCall(0).returns(true)
+        .onCall(1).returns(true)
+        .onCall(2).returns(false)
+        .onCall(3).returns(false);
+      sinon.stub(d, 'proxyRouteIsAvoided')
+        .onCall(0).returns(false)
+        .onCall(1).returns(true)
+        .onCall(2).returns(false)
+        .onCall(3).returns(true);
+      const proxyStub = sinon.stub(d, 'proxyCommand').returns(true);
+      const el = new ImageElement(defTemplate, defRect);
+      // skip the staleness check for this test
+      await d.settings.update({
+        checkForImageElementStaleness: false,
+      });
+
+      // we should only ever proxy when it is active and the route is not
+      // avoided
+      await el.click(d).should.eventually.be.true;
+
+      const [url, method, {actions}] = proxyStub.args[0];
+      url.should.include('actions');
+      method.should.eql("POST");
+      should.exist(actions);
+
+      // so these subsequent calls all throw
+      await el.click(d).should.eventually.be.rejectedWith(/performTouch/);
+      await el.click(d).should.eventually.be.rejectedWith(/performTouch/);
+      await el.click(d).should.eventually.be.rejectedWith(/performTouch/);
     });
   });
 
