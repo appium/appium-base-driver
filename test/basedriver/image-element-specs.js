@@ -2,7 +2,7 @@ import _ from 'lodash';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import BaseDriver, { ImageElement } from '../..';
-import { makeImageElementCache, getImgElFromArgs } from '../../lib/basedriver/image-element';
+import { makeImageElementCache, getImgElFromArgs, isImageCommand } from '../../lib/basedriver/image-element';
 import { IMAGE_ELEMENT_PREFIX } from '../../lib/protocol/protocol';
 import sinon from 'sinon';
 
@@ -246,5 +246,22 @@ describe('getImgElFromArgs', function () {
     const notImgEl = `foo${IMAGE_ELEMENT_PREFIX}`;
     const args = [1, 'foo', notImgEl];
     _.isUndefined(getImgElFromArgs(args)).should.be.true;
+  });
+});
+
+describe('isImageCommand', function () {
+  it('should return true if the command is included in image element', function () {
+    const imgEl = `${IMAGE_ELEMENT_PREFIX}foo`;
+    const args = [1, 'foo', imgEl];
+    isImageCommand(args, 'getLocation').should.be.true;
+  });
+  it('should return false if the command is not included in image element', function () {
+    const imgEl = `${IMAGE_ELEMENT_PREFIX}foo`;
+    const args = [1, 'foo', imgEl];
+    isImageCommand(args, 'noCommand').should.be.false;
+  });
+  it('should return false if the args has no image elements', function () {
+    const args = [1, 'foo'];
+    isImageCommand(args, 'getLocation').should.be.false;
   });
 });
