@@ -3,7 +3,6 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import B from 'bluebird';
 import { DeviceSettings } from '../..';
-import BaseDriver from "../../lib/basedriver/driver";
 import sinon from 'sinon';
 
 
