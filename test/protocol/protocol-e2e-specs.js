@@ -1,7 +1,7 @@
 // transpile:mocha
 
 import { server, routeConfiguringFunction, errors, JWProxy, BaseDriver } from '../..';
-import { FakeDriver } from './fake-driver';
+import { FakeDriver } from '../fake-driver';
 import _ from 'lodash';
 import request from 'request-promise';
 import chai from 'chai';

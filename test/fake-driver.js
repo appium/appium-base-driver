@@ -1,4 +1,4 @@
-import { errors, BaseDriver } from '../..';
+import { errors, BaseDriver } from '..';
 import _ from 'lodash';
 
 class FakeDriver extends BaseDriver {
