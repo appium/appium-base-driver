@@ -2,7 +2,7 @@
 /* global describe:true, it:true */
 
 import _ from 'lodash';
-import ProtoConverter from '../../lib/jsonwp-proxy/proto-converter';
+import ProtocolConverter from '../../lib/jsonwp-proxy/protocol-converter';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import BaseDriver from '../../lib/basedriver/driver';
@@ -11,21 +11,21 @@ const {MJSONWP, W3C} = BaseDriver.DRIVER_PROTOCOL;
 
 chai.use(chaiAsPromised);
 
-describe('ProtoConverter', function () {
+describe('Protocol Converter', function () {
   describe('getTimeoutRequestObjects', function () {
-    let protoConverter;
+    let converter;
     before(function () {
-      protoConverter = new ProtoConverter(_.noop);
+      converter = new ProtocolConverter(_.noop);
     });
     it('should take W3C inputs and produce MJSONWP compatible objects', async function () {
-      protoConverter.downstreamProtocol = MJSONWP;
-      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({script: 100});
+      converter.downstreamProtocol = MJSONWP;
+      let timeoutObjects = await converter.getTimeoutRequestObjects({script: 100});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({type: 'script', ms: 100});
     });
     it('should take multiple W3C timeouts and produce multiple MJSONWP compatible objects', async function () {
-      protoConverter.downstreamProtocol = MJSONWP;
-      let [scriptTimeout, pageLoadTimeout, implicitTimeout] = await protoConverter.getTimeoutRequestObjects({script: 100, pageLoad: 200, implicit: 300});
+      converter.downstreamProtocol = MJSONWP;
+      let [scriptTimeout, pageLoadTimeout, implicitTimeout] = await converter.getTimeoutRequestObjects({script: 100, pageLoad: 200, implicit: 300});
       scriptTimeout.should.eql({
         type: 'script',
         ms: 100,
@@ -40,20 +40,20 @@ describe('ProtoConverter', function () {
       });
     });
     it('should take MJSONWP input and produce W3C compatible object', async function () {
-      protoConverter.downstreamProtocol = W3C;
-      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
+      converter.downstreamProtocol = W3C;
+      let timeoutObjects = await converter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({implicit: 300});
     });
     it('should not change the input if protocol name is unknown', async function () {
-      protoConverter.downstreamProtocol = null;
-      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
+      converter.downstreamProtocol = null;
+      let timeoutObjects = await converter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({type: 'implicit', ms: 300});
     });
     it('should not change the input if protocol name is unchanged', async function () {
-      protoConverter.downstreamProtocol = MJSONWP;
-      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
+      converter.downstreamProtocol = MJSONWP;
+      let timeoutObjects = await converter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({type: 'implicit', ms: 300});
     });
