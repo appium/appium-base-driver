@@ -41,9 +41,21 @@ describe('ProtoConverter', function () {
     });
     it('should take MJSONWP input and produce W3C compatible object', async function () {
       protoConverter.downstreamProtocol = W3C;
-      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({implicit: 300});
+      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({implicit: 300});
+    });
+    it('should not change the the input if protocol name is unknown', async function () {
+      protoConverter.downstreamProtocol = null;
+      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
+      timeoutObjects.length.should.equal(1);
+      timeoutObjects[0].should.eql({type: 'implicit', ms: 300});
+    });
+    it('should not change the the input if protocol name is unchanged', async function () {
+      protoConverter.downstreamProtocol = MJSONWP;
+      let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
+      timeoutObjects.length.should.equal(1);
+      timeoutObjects[0].should.eql({type: 'implicit', ms: 300});
     });
   });
 });
