@@ -45,13 +45,13 @@ describe('ProtoConverter', function () {
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({implicit: 300});
     });
-    it('should not change the the input if protocol name is unknown', async function () {
+    it('should not change the input if protocol name is unknown', async function () {
       protoConverter.downstreamProtocol = null;
       let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
       timeoutObjects[0].should.eql({type: 'implicit', ms: 300});
     });
-    it('should not change the the input if protocol name is unchanged', async function () {
+    it('should not change the input if protocol name is unchanged', async function () {
       protoConverter.downstreamProtocol = MJSONWP;
       let timeoutObjects = await protoConverter.getTimeoutRequestObjects({type: 'implicit', ms: 300});
       timeoutObjects.length.should.equal(1);
