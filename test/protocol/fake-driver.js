@@ -1,6 +1,8 @@
 import { errors, BaseDriver } from '../..';
 import _ from 'lodash';
 
+let fakeSessionId = 0;
+
 class FakeDriver extends BaseDriver {
 
   constructor () {
@@ -22,7 +24,8 @@ class FakeDriver extends BaseDriver {
   }
 
   async createSession (desiredCapabilities, requiredCapabilities, capabilities) {
-    this.sessionId = "1234";
+    // Use a counter to make sure each session has a unique id
+    this.sessionId = "fakeSession_" + fakeSessionId++;
     if (capabilities) {
       return [this.sessionId, capabilities];
     } else {
