@@ -25,7 +25,7 @@ class FakeDriver extends BaseDriver {
 
   async createSession (desiredCapabilities, requiredCapabilities, capabilities) {
     // Use a counter to make sure each session has a unique id
-    this.sessionId = "fakeSession_" + fakeSessionId++;
+    this.sessionId = `fakeSession_${fakeSessionId++}`;
     if (capabilities) {
       return [this.sessionId, capabilities];
     } else {
