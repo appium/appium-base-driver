@@ -1,4 +1,4 @@
-import { isPackageOrBundle, copyKey } from '../../lib/basedriver/helpers';
+import { isPackageOrBundle, duplicateKeys } from '../../lib/basedriver/helpers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
@@ -18,15 +18,15 @@ describe('helpers', function () {
     });
   });
 
-  describe('#copyKey', function () {
+  describe('#duplicateKeys', function () {
     it('should translate key in an object', function () {
-      copyKey({'foo': 'hello world'}, 'foo', 'bar').should.eql({'foo': 'hello world', 'bar': 'hello world'});
+      duplicateKeys({'foo': 'hello world'}, 'foo', 'bar').should.eql({'foo': 'hello world', 'bar': 'hello world'});
     });
     it('should translate key in an object within an object', function () {
-      copyKey({'key': {'foo': 'hello world'}}, 'foo', 'bar').should.eql({'key': {'foo': 'hello world', 'bar': 'hello world'}});
+      duplicateKeys({'key': {'foo': 'hello world'}}, 'foo', 'bar').should.eql({'key': {'foo': 'hello world', 'bar': 'hello world'}});
     });
     it('should translate key in an object with an array', function () {
-      copyKey([
+      duplicateKeys([
         {'key': {'foo': 'hello world'}},
         {'foo': 'HELLO WORLD'}
       ], 'foo', 'bar').should.eql([
@@ -34,9 +34,28 @@ describe('helpers', function () {
         {'foo': 'HELLO WORLD', 'bar': 'HELLO WORLD'}
       ]);
     });
+    it('should duplicate both keys', function () {
+      duplicateKeys({
+        'keyOne': {
+          'foo': 'hello world',
+        },
+        'keyTwo': {
+          'bar': 'HELLO WORLD',
+        },
+      }, 'foo', 'bar').should.eql({
+        'keyOne': {
+          'foo': 'hello world',
+          'bar': 'hello world',
+        },
+        'keyTwo': {
+          'bar': 'HELLO WORLD',
+          'foo': 'HELLO WORLD',
+        }
+      });
+    });
     it('should not do anything to primitives', function () {
       [0, 1, -1, true, false, null, undefined, "", "Hello World"].forEach((item) => {
-        should.equal(copyKey(item), item);
+        should.equal(duplicateKeys(item), item);
       });
     });
     it('should rename keys on big complex objects', function () {
@@ -70,7 +89,7 @@ describe('helpers', function () {
         null,
         0
       ];
-      copyKey(input, 'foo', 'FOO').should.deep.equal(expectedOutput);
+      duplicateKeys(input, 'foo', 'FOO').should.deep.equal(expectedOutput);
     });
   });
 });
