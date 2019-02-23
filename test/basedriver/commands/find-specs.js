@@ -7,8 +7,9 @@ import { IMAGE_STRATEGY, CUSTOM_STRATEGY } from '../../../lib/basedriver/command
 import { imageUtil } from 'appium-support';
 
 
-chai.should();
+const should = chai.should();
 chai.use(chaiAsPromised);
+
 
 class TestDriver extends BaseDriver {
   async getWindowSize () {}
@@ -156,24 +157,27 @@ describe('finding elements by image', function () {
       sinon.stub(d, 'getScreenshot').returns(TINY_PNG);
       d.settings.update({fixImageFindScreenshotDims: false});
       const screen = TINY_PNG_DIMS.map(n => n + 1);
-      await d.getScreenshotForImageFind(...screen)
-        .should.eventually.eql(TINY_PNG);
+      const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
+      b64Screenshot.should.eql(TINY_PNG);
+      should.equal(scale, undefined);
     });
     it('should return screenshot without adjustment if it matches screen size', async function () {
       const d = new TestDriver();
       sinon.stub(d, 'getScreenshot').returns(TINY_PNG);
-      await d.getScreenshotForImageFind(...TINY_PNG_DIMS)
-        .should.eventually.eql(TINY_PNG);
+      const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...TINY_PNG_DIMS);
+      b64Screenshot.should.eql(TINY_PNG);
+      should.equal(scale, undefined);
     });
     it('should return scaled screenshot with same aspect ratio if matching screen aspect ratio', async function () {
       const d = new TestDriver();
       sinon.stub(d, 'getScreenshot').returns(TINY_PNG);
       const screen = TINY_PNG_DIMS.map(n => n * 1.5);
-      const newScreenshot = await d.getScreenshotForImageFind(...screen);
-      newScreenshot.should.not.eql(TINY_PNG);
-      const screenshotObj = await imageUtil.getJimpImage(newScreenshot);
+      const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
+      b64Screenshot.should.not.eql(TINY_PNG);
+      const screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
+      scale.should.eql({ widthRatio: 1.5, heightRatio: 1.5 });
     });
     it('should return scaled screenshot with different aspect ratio if not matching screen aspect ratio', async function () {
       const d = new TestDriver();
@@ -181,19 +185,21 @@ describe('finding elements by image', function () {
 
       // try first with portrait screen
       let screen = [TINY_PNG_DIMS[0] * 2, TINY_PNG_DIMS[1] * 3];
-      let newScreenshot = await d.getScreenshotForImageFind(...screen);
-      newScreenshot.should.not.eql(TINY_PNG);
-      let screenshotObj = await imageUtil.getJimpImage(newScreenshot);
+      const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
+      b64Screenshot.should.not.eql(TINY_PNG);
+      let screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
+      scale.should.eql({ widthRatio: 2, heightRatio: 3 });
 
       // then with landscape screen
       screen = [TINY_PNG_DIMS[0] * 3, TINY_PNG_DIMS[1] * 2];
-      newScreenshot = await d.getScreenshotForImageFind(...screen);
-      newScreenshot.should.not.eql(TINY_PNG);
-      screenshotObj = await imageUtil.getJimpImage(newScreenshot);
+      const {b64Screenshot: newScreen, scale: newScale} = await d.getScreenshotForImageFind(...screen);
+      newScreen.should.not.eql(TINY_PNG);
+      screenshotObj = await imageUtil.getJimpImage(newScreen);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
+      newScale.should.eql({ widthRatio: 3, heightRatio: 2 });
     });
   });
 });
