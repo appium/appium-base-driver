@@ -93,6 +93,27 @@ describe('finding elements by image', function () {
       imgEl.template.should.eql(newTemplate);
       compareStub.args[0][2].should.eql(newTemplate);
     });
+
+    it('should fix template size scale if requested', async function () {
+      const d = new TestDriver();
+      const newTemplate = 'iVBORbaz';
+      const {compareStub} = basicStub(d);
+      await d.settings.update({fixScaleTemplateImage: true});
+      sinon.stub(d, 'fixScaleTemplateImage').returns(newTemplate);
+      const imgElProto = await d.findByImage(template, {multiple: false});
+      const imgEl = basicImgElVerify(imgElProto, d);
+      imgEl.template.should.eql(newTemplate);
+      compareStub.args[0][2].should.eql(newTemplate);
+    });
+    it('should not fix template size scale if it is not requested', async function () {
+      const d = new TestDriver();
+      const newTemplate = 'iVBORbaz';
+      basicStub(d);
+      await d.settings.update({});
+      sinon.stub(d, 'fixScaleTemplateImage').returns(newTemplate);
+      d.fixScaleTemplateImage.callCount.should.eql(0);
+    });
+
     it('should throw an error if template match fails', async function () {
       const d = new TestDriver();
       const {compareStub} = basicStub(d);
