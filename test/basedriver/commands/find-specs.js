@@ -198,7 +198,7 @@ describe('finding elements by image', function () {
       const screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
-      scale.should.eql({ widthRatio: 1.5, heightRatio: 1.5 });
+      scale.should.eql({ xScale: 1.5, yScale: 1.5 });
     });
     it('should return scaled screenshot with different aspect ratio if not matching screen aspect ratio', async function () {
       const d = new TestDriver();
@@ -211,7 +211,7 @@ describe('finding elements by image', function () {
       let screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
-      scale.should.eql({ widthRatio: 2, heightRatio: 3 });
+      scale.should.eql({ xScale: 2, yScale: 3 });
 
       // then with landscape screen
       screen = [TINY_PNG_DIMS[0] * 3, TINY_PNG_DIMS[1] * 2];
@@ -220,7 +220,7 @@ describe('finding elements by image', function () {
       screenshotObj = await imageUtil.getJimpImage(newScreen);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
-      newScale.should.eql({ widthRatio: 3, heightRatio: 2 });
+      newScale.should.eql({ xScale: 3, yScale: 2 });
     });
   });
 });
