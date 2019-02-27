@@ -3,7 +3,7 @@ import path from 'path';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import { BaseDriver, ImageElement } from '../../..';
-import { IMAGE_STRATEGY, CUSTOM_STRATEGY } from '../../../lib/basedriver/commands/find';
+import { IMAGE_STRATEGY, CUSTOM_STRATEGY, helpers } from '../../../lib/basedriver/commands/find';
 import { imageUtil } from 'appium-support';
 
 
@@ -112,6 +112,18 @@ describe('finding elements by image', function () {
       await d.settings.update({});
       sinon.stub(d, 'fixTemplateImageScale').returns(newTemplate);
       d.fixTemplateImageScale.callCount.should.eql(0);
+    });
+    it('should not fix template size scale if no scale value', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixTemplateImageScale(newTemplate).should.eventually.eql(newTemplate);
+    });
+    it('should not fix template size scale if it is not number', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixTemplateImageScale(newTemplate, 'wrong-scale').should.eventually.eql(newTemplate);
+    });
+    it('should fix template size scale', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixTemplateImageScale(newTemplate, { xScale: 1.5, yScale: 1.5 }).should.eventually.eql(newTemplate);
     });
 
     it('should throw an error if template match fails', async function () {
