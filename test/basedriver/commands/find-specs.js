@@ -281,21 +281,27 @@ describe('finding elements by image', function () {
 
       // try first with portrait screen
       let screen = [TINY_PNG_DIMS[0] * 2, TINY_PNG_DIMS[1] * 3];
+      let expectedScale = { xScale: 0.67, yScale: 1 };
+
       const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
       b64Screenshot.should.not.eql(TINY_PNG);
       let screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
-      scale.should.eql({ xScale: 2, yScale: 3 });
+      scale.xScale.toFixed(2).should.eql(expectedScale.xScale.toString());
+      scale.yScale.should.eql(expectedScale.yScale);
 
       // then with landscape screen
       screen = [TINY_PNG_DIMS[0] * 3, TINY_PNG_DIMS[1] * 2];
+      expectedScale = { xScale: 1, yScale: 0.67 };
+
       const {b64Screenshot: newScreen, scale: newScale} = await d.getScreenshotForImageFind(...screen);
       newScreen.should.not.eql(TINY_PNG);
       screenshotObj = await imageUtil.getJimpImage(newScreen);
       screenshotObj.bitmap.width.should.eql(screen[0]);
       screenshotObj.bitmap.height.should.eql(screen[1]);
-      newScale.should.eql({ xScale: 3, yScale: 2 });
+      newScale.xScale.should.eql(expectedScale.xScale);
+      newScale.yScale.toFixed(2).should.eql(expectedScale.yScale.toString());
     });
   });
 });
