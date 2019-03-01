@@ -113,25 +113,6 @@ describe('finding elements by image', function () {
       sinon.stub(d, 'fixImageTemplateScale').returns(newTemplate);
       d.fixImageTemplateScale.callCount.should.eql(0);
     });
-    it('should not fix template size scale if no scale value', async function () {
-      const newTemplate = 'iVBORbaz';
-      await helpers.fixImageTemplateScale(newTemplate).should.eventually.eql(newTemplate);
-    });
-    it('should not fix template size scale if it is null', async function () {
-      const newTemplate = 'iVBORbaz';
-      await helpers.fixImageTemplateScale(newTemplate, null)
-        .should.eventually.eql(newTemplate);
-    });
-    it('should not fix template size scale if it is not number', async function () {
-      const newTemplate = 'iVBORbaz';
-      await helpers.fixImageTemplateScale(newTemplate, 'wrong-scale')
-        .should.eventually.eql(newTemplate);
-    });
-    it('should fix template size scale', async function () {
-      const actual = 'iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAWElEQVR4AU3BQRWAQAhAwa/PGBsEgrC16AFBKEIPXW7OXO+Rmey9iQjMjHFzrLUwM7qbqmLcHKpKRFBVuDvj4agq3B1VRUQYT2bS3QwRQVUZF/CaGRHB3wc1vSZbHO5+BgAAAABJRU5ErkJggg==';
-      await helpers.fixImageTemplateScale(TINY_PNG, { xScale: 1.5, yScale: 1.5 })
-        .should.eventually.eql(actual);
-    });
 
     it('should throw an error if template match fails', async function () {
       const d = new TestDriver();
@@ -162,6 +143,30 @@ describe('finding elements by image', function () {
       (imgEl instanceof ImageElement).should.be.true;
       d._imgElCache.has(imgEl.id).should.be.false;
       imgEl.rect.should.eql(rect);
+    });
+  });
+
+  describe('fixImageTemplateScale', function () {
+    it('should not fix template size scale if no scale value', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixImageTemplateScale(newTemplate, {fixImageTemplateScale: true})
+        .should.eventually.eql(newTemplate);
+    });
+    it('should not fix template size scale if it is null', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixImageTemplateScale(newTemplate, null)
+        .should.eventually.eql(newTemplate);
+    });
+    it('should not fix template size scale if it is not number', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixImageTemplateScale(newTemplate, 'wrong-scale')
+        .should.eventually.eql(newTemplate);
+    });
+    it('should fix template size scale', async function () {
+      const actual = 'iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAWElEQVR4AU3BQRWAQAhAwa/PGBsEgrC16AFBKEIPXW7OXO+Rmey9iQjMjHFzrLUwM7qbqmLcHKpKRFBVuDvj4agq3B1VRUQYT2bS3QwRQVUZF/CaGRHB3wc1vSZbHO5+BgAAAABJRU5ErkJggg==';
+      await helpers.fixImageTemplateScale(TINY_PNG, {
+        fixImageTemplateScale: true, xScale: 1.5, yScale: 1.5
+      }).should.eventually.eql(actual);
     });
   });
 
