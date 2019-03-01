@@ -117,6 +117,11 @@ describe('finding elements by image', function () {
       const newTemplate = 'iVBORbaz';
       await helpers.fixImageTemplateScale(newTemplate).should.eventually.eql(newTemplate);
     });
+    it('should not fix template size scale if it is null', async function () {
+      const newTemplate = 'iVBORbaz';
+      await helpers.fixImageTemplateScale(newTemplate, null)
+        .should.eventually.eql(newTemplate);
+    });
     it('should not fix template size scale if it is not number', async function () {
       const newTemplate = 'iVBORbaz';
       await helpers.fixImageTemplateScale(newTemplate, 'wrong-scale')
