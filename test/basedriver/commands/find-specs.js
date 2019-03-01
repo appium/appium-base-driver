@@ -202,6 +202,23 @@ describe('finding elements by image', function () {
         xScale: 1.5, yScale: 1.5
       }).should.eventually.eql(actual);
     });
+
+    it('should not fix template size scale because of ignoreDefaultImageTemplateScale', async function () {
+      await helpers.fixImageTemplateScale(TINY_PNG, {
+        defaultImageTemplateScale: 4.0,
+        ignoreDefaultImageTemplateScale: true,
+      }).should.eventually.eql(TINY_PNG);
+    });
+
+    it('should ignore defaultImageTemplateScale to fix template size scale because of ignoreDefaultImageTemplateScale', async function () {
+      const actual = 'iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAWElEQVR4AU3BQRWAQAhAwa/PGBsEgrC16AFBKEIPXW7OXO+Rmey9iQjMjHFzrLUwM7qbqmLcHKpKRFBVuDvj4agq3B1VRUQYT2bS3QwRQVUZF/CaGRHB3wc1vSZbHO5+BgAAAABJRU5ErkJggg==';
+      await helpers.fixImageTemplateScale(TINY_PNG, {
+        defaultImageTemplateScale: 4.0,
+        ignoreDefaultImageTemplateScale: true,
+        fixImageTemplateScale: true,
+        xScale: 1.5, yScale: 1.5
+      }).should.eventually.eql(actual);
+    });
   });
 
   describe('ensureTemplateSize', function () {
