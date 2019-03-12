@@ -279,9 +279,9 @@ describe('finding elements by image', function () {
       const d = new TestDriver();
       sinon.stub(d, 'getScreenshot').returns(TINY_PNG);
 
-      // try first with portrait screen
+      // try first with portrait screen, screen = 8 x 12
       let screen = [TINY_PNG_DIMS[0] * 2, TINY_PNG_DIMS[1] * 3];
-      let expectedScale = { xScale: 0.67, yScale: 1 };
+      let expectedScale = { xScale: 2.67, yScale: 4 };
 
       const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
       b64Screenshot.should.not.eql(TINY_PNG);
@@ -291,9 +291,9 @@ describe('finding elements by image', function () {
       scale.xScale.toFixed(2).should.eql(expectedScale.xScale.toString());
       scale.yScale.should.eql(expectedScale.yScale);
 
-      // then with landscape screen
+      // then with landscape screen, screen = 12 x 8
       screen = [TINY_PNG_DIMS[0] * 3, TINY_PNG_DIMS[1] * 2];
-      expectedScale = { xScale: 1, yScale: 0.67 };
+      expectedScale = { xScale: 4, yScale: 2.67 };
 
       const {b64Screenshot: newScreen, scale: newScale} = await d.getScreenshotForImageFind(...screen);
       newScreen.should.not.eql(TINY_PNG);
@@ -303,6 +303,42 @@ describe('finding elements by image', function () {
       newScale.xScale.should.eql(expectedScale.xScale);
       newScale.yScale.toFixed(2).should.eql(expectedScale.yScale.toString());
     });
+
+    it('should return scaled screenshot with different aspect ratio if not matching screen aspect ratio with fixImageTemplateScale', async function () {
+      const d = new TestDriver();
+      sinon.stub(d, 'getScreenshot').returns(TINY_PNG);
+
+      // try first with portrait screen, screen = 8 x 12
+      let screen = [TINY_PNG_DIMS[0] * 2, TINY_PNG_DIMS[1] * 3];
+      let expectedScale = { xScale: 2.67, yScale: 4 };
+
+      const {b64Screenshot, scale} = await d.getScreenshotForImageFind(...screen);
+      b64Screenshot.should.not.eql(TINY_PNG);
+      let screenshotObj = await imageUtil.getJimpImage(b64Screenshot);
+      screenshotObj.bitmap.width.should.eql(screen[0]);
+      screenshotObj.bitmap.height.should.eql(screen[1]);
+      scale.xScale.toFixed(2).should.eql(expectedScale.xScale.toString());
+      scale.yScale.should.eql(expectedScale.yScale);
+      // 8 x 12 stretched TINY_PNG
+      await helpers.fixImageTemplateScale(b64Screenshot, {fixImageTemplateScale: true, scale})
+        .should.eventually.eql('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAMCAYAAABfnvydAAAAJ0lEQVR4AYXBAQEAIACDMKR/p0fTBrKdbZcPCRIkSJAgQYIECRIkPAzBA1TpeNwZAAAAAElFTkSuQmCC');
+
+      // then with landscape screen, screen = 12 x 8
+      screen = [TINY_PNG_DIMS[0] * 3, TINY_PNG_DIMS[1] * 2];
+      expectedScale = { xScale: 4, yScale: 2.67 };
+
+      const {b64Screenshot: newScreen, scale: newScale} = await d.getScreenshotForImageFind(...screen);
+      newScreen.should.not.eql(TINY_PNG);
+      screenshotObj = await imageUtil.getJimpImage(newScreen);
+      screenshotObj.bitmap.width.should.eql(screen[0]);
+      screenshotObj.bitmap.height.should.eql(screen[1]);
+      newScale.xScale.should.eql(expectedScale.xScale);
+      newScale.yScale.toFixed(2).should.eql(expectedScale.yScale.toString());
+      // 12 x 8 stretched TINY_PNG
+      await helpers.fixImageTemplateScale(newScreen, {fixImageTemplateScale: true, scale})
+        .should.eventually.eql('iVBORw0KGgoAAAANSUhEUgAAAAwAAAAICAYAAADN5B7xAAAAI0lEQVR4AZXBAQEAMAyDMI5/T5W2ayB5245AIokkkkgiiST6+W4DTLyo5PUAAAAASUVORK5CYII=');
+    });
+
   });
 });
 
