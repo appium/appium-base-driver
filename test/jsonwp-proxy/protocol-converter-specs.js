@@ -123,14 +123,14 @@ describe('Protocol Converter', function () {
       }
     });
     it('should convert "property/value" to "attribute/value"', function () {
-      jsonwpConverter("/session/123/element/456/property/value").should.equal("/session/123/element/456/attribute/value");
+      jsonwpConverter('/session/123/element/456/property/value').should.equal('/session/123/element/456/attribute/value');
     });
     it('should convert "property/:somePropName" to "attribute/:somePropName"', function () {
-      jsonwpConverter("/session/123/element/456/property/somePropName").should.equal("/session/123/element/456/attribute/somePropName");
+      jsonwpConverter('/session/123/element/456/property/somePropName').should.equal('/session/123/element/456/attribute/somePropName');
     });
     it('should not convert from JSONWP to W3C', function () {
-      w3cConverter("/session/123/element/456/attribute/someAttr").should.equal("/session/123/element/456/attribute/someAttr");
-      w3cConverter("/session/123/element/456/property/someProp").should.equal("/session/123/element/456/property/someProp");
+      w3cConverter('/session/123/element/456/attribute/someAttr').should.equal('/session/123/element/456/attribute/someAttr');
+      w3cConverter('/session/123/element/456/property/someProp').should.equal('/session/123/element/456/property/someProp');
     });
   });
 });
