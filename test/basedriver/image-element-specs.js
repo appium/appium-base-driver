@@ -215,7 +215,7 @@ describe('ImageElement', function () {
     });
     it('should not get other attribute', async function () {
       await ImageElement.execute(driver, 'getAttribute', imgEl.id, 'content-desc')
-        .should.eventually.eql(undefined);
+        .should.eventually.rejectedWith('Method has not yet been implemented');
     });
     it('should click element', async function () {
       await ImageElement.execute(driver, 'click', imgEl.id)
