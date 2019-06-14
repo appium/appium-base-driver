@@ -56,3 +56,6 @@ export { processCapabilities };
 import * as ws from './lib/express/websocket';
 const { DEFAULT_WS_PATHNAME_PREFIX } = ws;
 export { DEFAULT_WS_PATHNAME_PREFIX };
+
+import { downloadApp } from './lib/basedriver/helpers';
+export { downloadApp };
