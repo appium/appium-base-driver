@@ -46,7 +46,6 @@
     "lru-cache": "^5.0.0",
     "method-override": "^3.0.0",
     "morgan": "^1.9.0",
-    "prettyjson": "^1.2.1",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "sanitize-filename": "^1.6.1",
