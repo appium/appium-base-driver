@@ -310,7 +310,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         });
         const expectedTimeouts = {command: 250, implicit: 0};
         const expectedStatus = {};
-        res.value.should.eql([expectedTimeouts, expectedStatus]);
+        res.value.result.should.eql([expectedTimeouts, expectedStatus]);
         await endSession(sessionId);
       });
 
@@ -335,7 +335,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           method: 'POST',
           json: {script},
         });
-        res.value.should.eql({
+        res.value.result.should.eql({
           [W3C_ELEMENT_KEY]: 'element-id-1',
           [MJSONWP_ELEMENT_KEY]: 'element-id-1'
         });
@@ -357,7 +357,25 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           [W3C_ELEMENT_KEY]: 'element-id-1',
           [MJSONWP_ELEMENT_KEY]: 'element-id-1'
         };
-        res.value.should.eql({element: elObj, elements: [elObj, elObj]});
+        res.value.result.should.eql({element: elObj, elements: [elObj, elObj]});
+        await endSession(sessionId);
+      });
+
+      it('should store and return logs to the user', async function () {
+        let {sessionId} = await startSession(defaultCaps);
+        const script = `
+          console.log("foo");
+          console.log("foo2");
+          console.warn("bar");
+          console.error("baz");
+          return null;
+        `;
+        const res = await request({
+          url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
+          method: 'POST',
+          json: {script},
+        });
+        res.value.logs.should.eql({log: ['foo', 'foo2'], warn: ['bar'], error: ['baz']});
         await endSession(sessionId);
       });
 
