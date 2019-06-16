@@ -265,7 +265,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
     describe('execute driver script', function () {
       // mock some methods on BaseDriver that aren't normally there except in
       // a fully blown driver
-      let originalFindElement;
+      let originalFindElement, sessionId;
       before(function () {
         d.allowInsecure = ['execute-driver-script'];
         originalFindElement = d.findElement;
@@ -278,12 +278,19 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         }).bind(d);
       });
 
+      beforeEach(async function () {
+        ({sessionId} = await startSession(defaultCaps));
+      });
+
       after(function () {
         d.findElement = originalFindElement;
       });
 
+      afterEach(async function () {
+        await endSession(sessionId);
+      });
+
       it('should not work unless the allowInsecure feature flag is set', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         d._allowInsecure = d.allowInsecure;
         d.allowInsecure = [];
         const script = `return 'foo'`;
@@ -297,7 +304,6 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
       });
 
       it('should execute a webdriverio script in the context of session', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           const timeouts = await driver.getTimeouts();
           const status = await driver.status();
@@ -311,22 +317,18 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         const expectedTimeouts = {command: 250, implicit: 0};
         const expectedStatus = {};
         res.value.result.should.eql([expectedTimeouts, expectedStatus]);
-        await endSession(sessionId);
       });
 
       it('should fail with any script type other than webdriverio currently', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `return 'foo'`;
         await request({
           url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
           method: 'POST',
           json: {script, type: 'wd'},
         }).should.eventually.be.rejectedWith(/script type/);
-        await endSession(sessionId);
       });
 
       it('should execute a webdriverio script that returns elements correctly', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           return await driver.$("~amazing");
         `;
@@ -339,11 +341,9 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           [W3C_ELEMENT_KEY]: 'element-id-1',
           [MJSONWP_ELEMENT_KEY]: 'element-id-1'
         });
-        await endSession(sessionId);
       });
 
       it('should execute a webdriverio script that returns elements in deep structure', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           const el = await driver.$("~amazing");
           return {element: el, elements: [el, el]};
@@ -358,11 +358,9 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           [MJSONWP_ELEMENT_KEY]: 'element-id-1'
         };
         res.value.result.should.eql({element: elObj, elements: [elObj, elObj]});
-        await endSession(sessionId);
       });
 
       it('should store and return logs to the user', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           console.log("foo");
           console.log("foo2");
@@ -376,11 +374,21 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           json: {script},
         });
         res.value.logs.should.eql({log: ['foo', 'foo2'], warn: ['bar'], error: ['baz']});
-        await endSession(sessionId);
+      });
+
+      it('should have appium specific commands available', async function () {
+        const script = `
+          return typeof driver.lock;
+        `;
+        const res = await request({
+          url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
+          method: 'POST',
+          json: {script},
+        });
+        res.value.result.should.eql('function');
       });
 
       it('should correctly handle errors that happen in a webdriverio script', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           return await driver.$("~notfound");
         `;
@@ -395,11 +403,9 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           status: 13,
           value: {message: 'An unknown server-side error occurred while processing the command. Original error: not found'}
         });
-        await endSession(sessionId);
       });
 
       it('should correctly handle errors that happen when a script cannot be compiled', async function () {
-        let {sessionId} = await startSession(defaultCaps);
         const script = `
           return {;
         `;
@@ -414,10 +420,8 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           status: 13,
           value: {message: 'An unknown server-side error occurred while processing the command. Original error: SyntaxError: Unexpected token ;'}
         });
-        await endSession(sessionId);
       });
     });
-
   });
 }
 
