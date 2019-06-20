@@ -401,7 +401,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         res.should.eql({
           sessionId,
           status: 13,
-          value: {message: 'An unknown server-side error occurred while processing the command. Original error: not found'}
+          value: {message: 'An unknown server-side error occurred while processing the command. Original error: Could not execute driver script. Original error was: Error: not found'}
         });
       });
 
@@ -418,8 +418,22 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         res.should.eql({
           sessionId,
           status: 13,
-          value: {message: 'An unknown server-side error occurred while processing the command. Original error: SyntaxError: Unexpected token ;'}
+          value: {message: 'An unknown server-side error occurred while processing the command. Original error: Could not execute driver script. Original error was: Error: Unexpected token ;'}
         });
+      });
+
+      it('should be able to set a timeout on a driver script', async function () {
+        const script = `
+          await Promise.delay(1000);
+          return true;
+        `;
+        const res = await request({
+          url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
+          method: 'POST',
+          json: {script, timeout: 50},
+          simple: false,
+        });
+        res.value.message.should.match(/.+50.+timeout.+/);
       });
     });
   });
