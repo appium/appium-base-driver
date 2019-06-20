@@ -1,4 +1,4 @@
-import { isPackageOrBundle, unzipFile } from '../../lib/basedriver/helpers';
+import { isPackageOrBundle, unzipFile, parseArray } from '../../lib/basedriver/helpers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
@@ -44,5 +44,18 @@ describe('helpers', () => {
       await fs.readFile(path.resolve(mockDir, 'FakeIOSApp.app'), 'utf8').should.eventually.deep.equal('this is not really an app\n');
       forceWindows.restore();
     });
+  });
+});
+
+describe('parseArray', function () {
+  it('should parse string into array', function () {
+    parseArray('/tmp/my/app.zip').should.eql(['/tmp/my/app.zip']);
+  });
+  it('should parse array into array', function () {
+    parseArray('["/tmp/my/app.zip"]').should.eql(['/tmp/my/app.zip']);
+    parseArray('["/tmp/my/app.zip","/tmp/my/app2.zip"]').should.eql([
+      '/tmp/my/app.zip',
+      '/tmp/my/app2.zip'
+    ]);
   });
 });
