@@ -1,16 +1,21 @@
-import { errors, MobileJsonWireProtocol } from '../..';
+/* eslint-disable require-await */
+import { errors, BaseDriver } from '../..';
 import _ from 'lodash';
+import UUID from 'uuid-js';
 
-class FakeDriver extends MobileJsonWireProtocol {
+class FakeDriver extends BaseDriver {
 
   constructor () {
     super();
+    this.protocol = BaseDriver.DRIVER_PROTOCOL.MJSONWP;
     this.sessionId = null;
     this.jwpProxyActive = false;
   }
 
   sessionExists (sessionId) {
-    if (!sessionId) return false;
+    if (!sessionId) {
+      return false;
+    }
     return sessionId === this.sessionId;
   }
 
@@ -19,7 +24,8 @@ class FakeDriver extends MobileJsonWireProtocol {
   }
 
   async createSession (desiredCapabilities, requiredCapabilities, capabilities) {
-    this.sessionId = "1234";
+    // Use a counter to make sure each session has a unique id
+    this.sessionId = `fakeSession_${UUID.create().hex}`;
     if (capabilities) {
       return [this.sessionId, capabilities];
     } else {
@@ -32,6 +38,9 @@ class FakeDriver extends MobileJsonWireProtocol {
   async executeCommand (cmd, ...args) {
     if (!this[cmd]) {
       throw new errors.NotYetImplementedError();
+    }
+    if (cmd === 'createSession') {
+      this.protocol = BaseDriver.determineProtocol.apply(null, args);
     }
     return await this[cmd](...args);
   }
@@ -50,7 +59,7 @@ class FakeDriver extends MobileJsonWireProtocol {
   }
 
   async getUrl () {
-    return "http://foobar.com";
+    return 'http://foobar.com';
   }
 
   async back (sessionId) {
@@ -88,15 +97,15 @@ class FakeDriver extends MobileJsonWireProtocol {
   }
 
   async getText () {
-    return "";
+    return '';
   }
 
   async getAttribute (attr, elementId, sessionId) {
     return [attr, elementId, sessionId];
   }
 
-  async setValue (elementId, value) {
-    return value;
+  async setValue (value, elementId) {
+    return [value, elementId];
   }
 
   async performTouch (...args) {

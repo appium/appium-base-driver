@@ -1,48 +1,50 @@
-// transpile:mocha
-/* global describe:true, it:true, before:true, after:true */
-
-import { JWProxy } from '../..';
-import cp from 'child_process';
 import chai from 'chai';
-import { sleep } from 'asyncbox';
-import chromedriver from 'chromedriver';
 import chaiAsPromised from 'chai-as-promised';
+import { JWProxy, server, routeConfiguringFunction } from '../..';
+import { FakeDriver } from '../protocol/fake-driver';
 
-
-let should = chai.should();
+const should = chai.should();
 chai.use(chaiAsPromised);
 
-describe('proxy', () => {
-  let cdProc = null;
-  let j = new JWProxy();
-  before(async () => {
-    cdProc = cp.spawn(chromedriver.path, ['--url-base=/wd/hub', '--port=4444']);
-    await sleep(1000);
+describe('proxy', function () {
+  const jwproxy = new JWProxy();
+  let baseServer;
+  before(async function () {
+    baseServer = await server(routeConfiguringFunction(new FakeDriver()), 4444);
   });
-  after(async () => {
-    cdProc.kill();
-    await sleep(500);
+  after(async function () {
+    await baseServer.close();
   });
 
-  it('should proxy status straight', async () => {
-    let [res, resBody] = await j.proxy('/status', 'GET');
+  it('should proxy status straight', async function () {
+    let [res, resBody] = await jwproxy.proxy('/status', 'GET');
     resBody = JSON.parse(resBody);
     res.statusCode.should.equal(200);
     resBody.status.should.equal(0);
-    resBody.value.should.have.property('build');
+    resBody.value.should.equal(`I'm fine`);
   });
-  it('should proxy status as command', async () => {
-    let res = await j.command('/status', 'GET');
-    res.should.have.property('build');
+  it('should proxy status as command', async function () {
+    const res = await jwproxy.command('/status', 'GET');
+    res.should.eql(`I'm fine`);
   });
-  it('should start a new session', async () => {
-    let caps = {browserName: 'chrome'};
-    let res = await j.command('/session', 'POST', {desiredCapabilities: caps});
-    res.should.have.property('browserName');
-    j.sessionId.should.have.length(32);
+  describe('new session', function () {
+    afterEach(async function () {
+      await jwproxy.command('', 'DELETE');
+    });
+    it('should start a new session', async function () {
+      const caps = {browserName: 'fake'};
+      const res = await jwproxy.command('/session', 'POST', {desiredCapabilities: caps});
+      res.should.have.property('browserName');
+      jwproxy.sessionId.should.have.length(48);
+    });
   });
-  it('should quit a session', async () => {
-    let res = await j.command('', 'DELETE');
-    should.not.exist(res);
+  describe('delete session', function () {
+    beforeEach(async function () {
+      await jwproxy.command('/session', 'POST', {desiredCapabilities: {}});
+    });
+    it('should quit a session', async function () {
+      const res = await jwproxy.command('', 'DELETE');
+      should.not.exist(res);
+    });
   });
 });
