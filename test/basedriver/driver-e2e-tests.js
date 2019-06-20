@@ -267,7 +267,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
       // a fully blown driver
       let originalFindElement, sessionId;
       before(function () {
-        d.allowInsecure = ['execute-driver-script'];
+        d.allowInsecure = ['execute_driver_script'];
         originalFindElement = d.findElement;
         d.findElement = (function (strategy, selector) {
           if (strategy === 'accessibility id' && selector === 'amazing') {
