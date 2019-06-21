@@ -8,7 +8,7 @@ import B from 'bluebird';
 
 const should = chai.should();
 const DEFAULT_ARGS = {
-  host: 'localhost',
+  address: 'localhost',
   port: 8181
 };
 chai.use(chaiAsPromised);
