@@ -1,4 +1,4 @@
-import { isPackageOrBundle, duplicateKeys, parseArray } from '../../lib/basedriver/helpers';
+import { isPackageOrBundle, duplicateKeys, parseCapsArray } from '../../lib/basedriver/helpers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
@@ -94,13 +94,13 @@ describe('helpers', function () {
   });
 });
 
-describe('parseArray', function () {
+describe('parseCapsArray', function () {
   it('should parse string into array', function () {
-    parseArray('/tmp/my/app.zip').should.eql(['/tmp/my/app.zip']);
+    parseCapsArray('/tmp/my/app.zip').should.eql(['/tmp/my/app.zip']);
   });
   it('should parse array into array', function () {
-    parseArray('["/tmp/my/app.zip"]').should.eql(['/tmp/my/app.zip']);
-    parseArray('["/tmp/my/app.zip","/tmp/my/app2.zip"]').should.eql([
+    parseCapsArray('["/tmp/my/app.zip"]').should.eql(['/tmp/my/app.zip']);
+    parseCapsArray('["/tmp/my/app.zip","/tmp/my/app2.zip"]').should.eql([
       '/tmp/my/app.zip',
       '/tmp/my/app2.zip'
     ]);
