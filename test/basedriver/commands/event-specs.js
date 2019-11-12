@@ -32,6 +32,7 @@ describe('#getLogEvents', function () {
       commands: [], testCommand: ['1', '2', '3']
     });
   });
+
   it('should filter with testCommand', async function () {
     const d = new BaseDriver();
     d._eventHistory.should.eql({commands: []});
@@ -39,6 +40,13 @@ describe('#getLogEvents', function () {
     await d.getLogEvents('testCommand').should.eql({
       testCommand: ['1', '2', '3']
     });
+  });
+
+  it('should not filter with wrong but can be a part of the event name', async function () {
+    const d = new BaseDriver();
+    d._eventHistory.should.eql({commands: []});
+    d._eventHistory.testCommand = ['1', '2', '3'];
+    await d.getLogEvents('testCommandDummy').should.eql({});
   });
 
   it('should filter with multiple event keys', async function () {
@@ -58,5 +66,12 @@ describe('#getLogEvents', function () {
     await d.getLogEvents(['custom:appiumEvent']).should.eql({
       'custom:appiumEvent': ['1', '2', '3']
     });
+  });
+
+  it('should not filter with no existed event name', async function () {
+    const d = new BaseDriver();
+    d._eventHistory.should.eql({commands: []});
+    d._eventHistory.testCommand = ['1', '2', '3'];
+    await d.getLogEvents(['noEventName']).should.eql({});
   });
 });
