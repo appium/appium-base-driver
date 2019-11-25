@@ -322,7 +322,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           json: {script, type: 'webdriverio'},
         });
         const expectedTimeouts = {command: 250, implicit: 0};
-        const expectedStatus = null;
+        const expectedStatus = {};
         res.value.result.should.eql([expectedTimeouts, expectedStatus]);
       });
 
