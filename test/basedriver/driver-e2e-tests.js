@@ -241,8 +241,8 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         res.status.should.equal(13);
         res.value.message.should.contain('Crashytimes');
         await new B((resolve, reject) => {
-          setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
-          d.once('onUnexpectedShutdown', resolve);
+          setTimeout(() => reject(new Error('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout')), 5000);
+          d.onUnexpectedShutdown(resolve);
         });
         d.getStatus = d._oldGetStatus;
       });

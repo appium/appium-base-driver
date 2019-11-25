@@ -88,11 +88,8 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       d.startUnexpectedShutdown(new Error('We crashed'));
       await cmdPromise.should.be.rejectedWith(/We crashed/);
       await new B((resolve, reject) => {
-        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
-        d.once('onUnexpectedShutdown', (e) => {
-          /We crashed/.test(e.message).should.be.true;
-          resolve();
-        });
+        setTimeout(() => reject(new Error('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout')), 5000);
+        d.onUnexpectedShutdown(resolve);
       });
     });
 
@@ -107,11 +104,8 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       await d.createSession(caps);
       d.startUnexpectedShutdown(new Error('We crashed'));
       await new B((resolve, reject) => {
-        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
-        d.once('onUnexpectedShutdown', (e) => {
-          /We crashed/.test(e.message).should.be.true;
-          resolve();
-        });
+        setTimeout(() => reject(new Error('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout')), 5000);
+        d.onUnexpectedShutdown(resolve);
       });
       await d.executeCommand('getSession').should.be.rejectedWith(/shut down/);
     });
@@ -128,11 +122,8 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       await d.createSession(caps);
       d.startUnexpectedShutdown(new Error('We crashed'));
       await new B((resolve, reject) => {
-        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
-        d.once('onUnexpectedShutdown', (e) => {
-          /We crashed/.test(e.message).should.be.true;
-          resolve();
-        });
+        setTimeout(() => reject(new Error('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout')), 5000);
+        d.onUnexpectedShutdown(resolve);
       });
 
       await d.executeCommand('getSession').should.be.rejectedWith(/shut down/);
