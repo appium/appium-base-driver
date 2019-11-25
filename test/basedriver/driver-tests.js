@@ -87,7 +87,13 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       await B.delay(10);
       d.startUnexpectedShutdown(new Error('We crashed'));
       await cmdPromise.should.be.rejectedWith(/We crashed/);
-      await d.onUnexpectedShutdown.should.be.rejectedWith(/We crashed/);
+      await new B((resolve, reject) => {
+        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
+        d.once('onUnexpectedShutdown', (e) => {
+          /We crashed/.test(e.message).should.be.true;
+          resolve();
+        });
+      });
     });
 
     it('should not allow commands in middle of unexpected shutdown', async function () {
@@ -100,7 +106,13 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       let caps = _.clone(defaultCaps);
       await d.createSession(caps);
       d.startUnexpectedShutdown(new Error('We crashed'));
-      await d.onUnexpectedShutdown.should.be.rejectedWith(/We crashed/);
+      await new B((resolve, reject) => {
+        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
+        d.once('onUnexpectedShutdown', (e) => {
+          /We crashed/.test(e.message).should.be.true;
+          resolve();
+        });
+      });
       await d.executeCommand('getSession').should.be.rejectedWith(/shut down/);
     });
 
@@ -115,7 +127,13 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       let caps = _.clone(defaultCaps);
       await d.createSession(caps);
       d.startUnexpectedShutdown(new Error('We crashed'));
-      await d.onUnexpectedShutdown.should.be.rejectedWith(/We crashed/);
+      await new B((resolve, reject) => {
+        setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
+        d.once('onUnexpectedShutdown', (e) => {
+          /We crashed/.test(e.message).should.be.true;
+          resolve();
+        });
+      });
 
       await d.executeCommand('getSession').should.be.rejectedWith(/shut down/);
       await B.delay(500);

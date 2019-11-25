@@ -240,7 +240,10 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         let res = await p;
         res.status.should.equal(13);
         res.value.message.should.contain('Crashytimes');
-        await d.onUnexpectedShutdown.should.be.rejectedWith('Crashytimes');
+        await new B((resolve, reject) => {
+          setTimeout(() => reject('onUnexpectedShutdown event is expected to be fired within 5 seconds timeout'), 5000);
+          d.once('onUnexpectedShutdown', resolve);
+        });
         d.getStatus = d._oldGetStatus;
       });
     });
