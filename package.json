@@ -27,7 +27,7 @@
     "lib",
     "static",
     "build/index.js",
-    "build/lib",
+    "build/lib"
   ],
   "dependencies": {
     "@babel/runtime": "^7.0.0",
