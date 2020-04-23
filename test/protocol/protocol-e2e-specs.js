@@ -493,11 +493,11 @@ describe('Protocol', function () {
           statusCode.should.equal(405);
 
           const {error: w3cError, message, stacktrace} = error.value;
-          message.should.match(/Method is not implemented/);
+          message.should.match(/Method has not yet been implemented/);
           stacktrace.should.match(/protocol.js/);
           w3cError.should.be.a.string;
           w3cError.should.equal(errors.NotYetImplementedError.error());
-          message.should.match(/Method is not implemented/);
+          message.should.match(/Method has not yet been implemented/);
         });
 
         it(`should throw 500 Unknown Error if the command throws an unexpected exception`, async function () {
