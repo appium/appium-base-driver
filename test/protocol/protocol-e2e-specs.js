@@ -587,7 +587,7 @@ describe('Protocol', function () {
 
         it(`should pass with 200 HTTP status code if the command returns a value`, async function () {
           driver.performActions = (actions) => 'It works ' + actions.join('');
-          const {status, value, sessionId} = (await axios(`${sessionUrl}/actions`, {
+          const {status, value, sessionId} = (await axios.post(`${sessionUrl}/actions`, {
             actions: ['a', 'b', 'c'],
           })).data;
           should.not.exist(sessionId);
