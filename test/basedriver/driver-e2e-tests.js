@@ -428,11 +428,11 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         const script = `
           return typeof driver.lock;
         `;
-        const {value} = await axios({
+        const {value} = (await axios({
           url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
           method: 'POST',
           data: {script},
-        });
+        })).data;
         value.result.should.eql('function');
       });
 
@@ -457,16 +457,16 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         const script = `
           return {;
         `;
-        const {sessionId, status, value} = (await axios({
+        const {data} = await axios({
           url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
           method: 'POST',
           validateStatus: null,
           data: {script},
-        })).data;
-        sessionId.should.eql(sessionId);
-        status.should.eql(13);
-        value.should.have.property('message');
-        value.message.should.match(/An unknown server-side error occurred while processing the command. Original error: Could not execute driver script. Original error was: Error: Unexpected token '?;'?/);
+        });
+        sessionId.should.eql(data.sessionId);
+        data.status.should.eql(13);
+        data.value.should.have.property('message');
+        data.value.message.should.match(/An unknown server-side error occurred while processing the command. Original error: Could not execute driver script. Original error was: Error: Unexpected token '?;'?/);
       });
 
       it('should be able to set a timeout on a driver script', async function () {

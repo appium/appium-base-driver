@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import HTTPStatusCodes from 'http-status-codes';
 import { createProxyServer } from './helpers';
 import { MJSONWP_ELEMENT_KEY, W3C_ELEMENT_KEY } from '../../lib/protocol/protocol';
+import qs from 'querystring';
 
 
 let should = chai.should();
@@ -80,9 +81,9 @@ describe('Protocol', function () {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         method: 'POST',
-        data: {
+        data: qs.stringify({
           url: 'http://google.com',
-        },
+        }),
       });
       data.should.eql({
         status: 0,
@@ -415,29 +416,32 @@ describe('Protocol', function () {
           driver.sessionId = null;
           return BaseDriver.prototype.createSession.call(driver, capabilities);
         });
-        let caps = {
-          ...desiredCapabilities,
-          platformName: 'Fake',
-          deviceName: 'Fake',
-        };
-        // let {status, value, sessionId} = await request({
-        const {data} = await axios({
-          url: `${baseUrl}/session`,
-          method: 'POST',
-          data: {
-            desiredCapabilities: caps,
-            capabilities: {
-              alwaysMatch: caps,
-              firstMatch: [{}],
-            },
-          }
-        });
-        sessionId = data.sessionId;
+        try {
+          let caps = {
+            ...desiredCapabilities,
+            platformName: 'Fake',
+            deviceName: 'Fake',
+          };
+          // let {status, value, sessionId} = await request({
+          const {data} = await axios({
+            url: `${baseUrl}/session`,
+            method: 'POST',
+            data: {
+              desiredCapabilities: caps,
+              capabilities: {
+                alwaysMatch: caps,
+                firstMatch: [{}],
+              },
+            }
+          });
+          sessionId = data.sessionId;
 
-        should.exist(data.status);
-        should.exist(data.sessionId);
-        data.value.should.eql(caps);
-        createSessionStub.restore();
+          should.exist(data.status);
+          should.exist(data.sessionId);
+          data.value.should.eql(caps);
+        } finally {
+          createSessionStub.restore();
+        }
       });
 
       describe('w3c endpoints', function () {
@@ -452,14 +456,14 @@ describe('Protocol', function () {
 
         beforeEach(async function () {
           // Start a W3C session
-          const {data} = await axios({
+          const {value} = (await axios({
             url: `${baseUrl}/session`,
             method: 'POST',
             data: {
               capabilities: w3cCaps,
             },
-          });
-          sessionId = data.sessionId;
+          })).data;
+          sessionId = value.sessionId;
           sessionUrl = `${baseUrl}/session/${sessionId}`;
         });
 
