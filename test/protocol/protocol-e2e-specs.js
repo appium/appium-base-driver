@@ -10,7 +10,6 @@ import sinon from 'sinon';
 import HTTPStatusCodes from 'http-status-codes';
 import { createProxyServer } from './helpers';
 import { MJSONWP_ELEMENT_KEY, W3C_ELEMENT_KEY } from '../../lib/protocol/protocol';
-import FormData from 'form-data';
 
 
 let should = chai.should();
@@ -75,13 +74,15 @@ describe('Protocol', function () {
     });
 
     it('should respond to x-www-form-urlencoded as well as json requests', async function () {
-      const form = new FormData();
-      form.append('url', 'http://google.com');
       const {data} = await axios({
         url: `${baseUrl}/session/foo/url`,
-        headers: form.getHeaders(),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
         method: 'POST',
-        data: form,
+        data: {
+          url: 'http://google.com',
+        },
       });
       data.should.eql({
         status: 0,
@@ -953,7 +954,7 @@ describe('Protocol', function () {
         url: `${baseUrl}/session/${sessionId}/url`,
         method: 'POST',
         validateStatus: null,
-        json: {url: 'http://google.com'},
+        data: {url: 'http://google.com'},
       });
 
       status.should.equal(500);

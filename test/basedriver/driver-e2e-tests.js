@@ -38,6 +38,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
       return (await axios({
         url: `http://localhost:8181/wd/hub/session/${id}`,
         method: 'DELETE',
+        validateStatus: null,
       })).data;
     }
 
@@ -58,7 +59,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
               'X-Idempotency-Key': '123456',
             },
             method: 'POST',
-            json: {desiredCapabilities: defaultCaps, requiredCapabilities: {}},
+            data: {desiredCapabilities: defaultCaps, requiredCapabilities: {}},
             simple: false,
             resolveWithFullResponse: true
           })).data;
@@ -171,7 +172,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         await B.delay(400);
         const {data} = await axios({
           url: `http://localhost:8181/wd/hub/session/${d.sessionId}`,
-          method: 'GET',
+          validateStatus: null,
         });
         data.status.should.equal(6);
         should.equal(d.sessionId, null);
@@ -222,6 +223,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
         await B.delay(400);
         let {status} = (await axios({
           url: `http://localhost:8181/wd/hub/session/${d.sessionId}`,
+          validateStatus: null,
         })).data;
         status.should.equal(6);
         should.equal(d.sessionId, null);
@@ -264,8 +266,9 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
           d.getStatus = async function () {
             await B.delay(5000);
           }.bind(d);
-          let p = axios({
+          const reqPromise = axios({
             url: 'http://localhost:8181/wd/hub/status',
+            validateStatus: null,
           });
           // make sure that the request gets to the server before our shutdown
           await B.delay(100);
@@ -274,7 +277,7 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
             d.onUnexpectedShutdown(resolve);
           });
           d.startUnexpectedShutdown(new Error('Crashytimes'));
-          const {status, value} = (await p).data;
+          const {status, value} = (await reqPromise).data;
           status.should.equal(13);
           value.message.should.contain('Crashytimes');
           await shutdownEventPromise;
@@ -334,15 +337,18 @@ function baseDriverE2ETests (DriverClass, defaultCaps = {}) {
 
       it('should not work unless the allowInsecure feature flag is set', async function () {
         d._allowInsecure = d.allowInsecure;
-        d.allowInsecure = [];
-        const script = `return 'foo'`;
-        await axios({
-          url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
-          method: 'POST',
-          data: {script, type: 'wd'},
-        }).should.eventually.be.rejected;
-        await endSession(sessionId);
-        d.allowInsecure = d._allowInsecure;
+        try {
+          d.allowInsecure = [];
+          const script = `return 'foo'`;
+          await axios({
+            url: `http://localhost:8181/wd/hub/session/${sessionId}/appium/execute_driver`,
+            method: 'POST',
+            data: {script, type: 'wd'},
+          }).should.eventually.be.rejected;
+          await endSession(sessionId);
+        } finally {
+          d.allowInsecure = d._allowInsecure;
+        }
       });
 
       it('should execute a webdriverio script in the context of session', async function () {
