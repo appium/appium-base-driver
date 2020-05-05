@@ -452,8 +452,12 @@ describe('Protocol', function () {
 
         beforeEach(async function () {
           // Start a W3C session
-          const {data} = await axios.post(`${baseUrl}/session`, {
-            capabilities: w3cCaps,
+          const {data} = await axios({
+            url: `${baseUrl}/session`,
+            method: 'POST',
+            data: {
+              capabilities: w3cCaps,
+            },
           });
           sessionId = data.sessionId;
           sessionUrl = `${baseUrl}/session/${sessionId}`;
