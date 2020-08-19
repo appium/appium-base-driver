@@ -255,6 +255,13 @@ describe('caps', function () {
       }).should.deep.equal({platformName: 'Whatevz', browserName: 'Anything'});
     });
 
+    it('should prefer standard caps that are non-prefixed to prefixed', function () {
+      processCapabilities({
+        alwaysMatch: {'appium:platformName': 'Foo', 'platformName': 'Bar'},
+        firstMatch: [{'appium:browserName': 'FOO', 'browserName': 'BAR'}],
+      }).should.deep.equal({platformName: 'Bar', browserName: 'BAR'});
+    });
+
     it('should not throw an exception if presence constraint is not met on a firstMatch capability', function () {
       const caps = processCapabilities({
         alwaysMatch: {'platformName': 'Fake', 'appium:fakeCap': 'foobar'},
