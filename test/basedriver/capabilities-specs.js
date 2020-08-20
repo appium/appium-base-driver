@@ -261,6 +261,12 @@ describe('caps', function () {
         firstMatch: [{'appium:browserName': 'FOO', 'browserName': 'BAR'}],
       }).should.deep.equal({platformName: 'Bar', browserName: 'BAR'});
     });
+    it('should throw exception if duplicates in alwaysMatch and firstMatch', function () {
+      (() => processCapabilities({
+        alwaysMatch: {'platformName': 'Fake', 'appium:fakeCap': 'foobar'},
+        firstMatch: [{'appium:platformName': 'bar'}],
+      })).should.throw(/should not exist on both primary/);
+    });
 
     it('should not throw an exception if presence constraint is not met on a firstMatch capability', function () {
       const caps = processCapabilities({
