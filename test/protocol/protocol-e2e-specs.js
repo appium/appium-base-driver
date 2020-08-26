@@ -21,7 +21,7 @@ let should = chai.should();
 chai.use(chaiAsPromised);
 
 const serverPort = 8181;
-const baseUrl = `http://localhost:${serverPort}/wd/hub`;
+const baseUrl = `http://localhost:${serverPort}`;
 
 describe('Protocol', function () {
 
@@ -618,7 +618,7 @@ describe('Protocol', function () {
           });
 
           it('should work if a proxied request returns a response with status 200', async function () {
-            app.post('/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+            app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.json({
                 sessionId: req.params.sessionId,
                 value: req.body,
@@ -635,7 +635,7 @@ describe('Protocol', function () {
           });
 
           it('should return error if a proxied request returns a MJSONWP error response', async function () {
-            app.post('/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+            app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.status(500).json({
                 sessionId,
                 status: 6,
@@ -676,7 +676,7 @@ describe('Protocol', function () {
           });
 
           it('should return error if a proxied request returns a MJSONWP error response but HTTP status code is 200', async function () {
-            app.post('/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+            app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.status(200).json({
                 sessionId: 'Fake Session Id',
                 status: 7,
@@ -699,7 +699,7 @@ describe('Protocol', function () {
           });
 
           it('should return error if a proxied request returns a W3C error response', async function () {
-            app.post('/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+            app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.status(404).json({
                 value: {
                   error: 'no such element',
@@ -723,7 +723,7 @@ describe('Protocol', function () {
           });
 
           it('should return an error if a proxied request returns a W3C error response', async function () {
-            app.post('/wd/hub/session/:sessionId/perform-actions', (req, res) => {
+            app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.set('Connection', 'close');
               res.status(444).json({
                 value: {
