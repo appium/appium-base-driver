@@ -348,7 +348,7 @@ describe('Desired Capabilities', function () {
       const [sessionId, caps] = await d.createSession(null, null, {
         alwaysMatch: {
           platformName: 'iOS',
-          deviceName: 'Delorean'
+          'appium:deviceName': 'Delorean'
         }, firstMatch: [{}],
       });
       sessionId.should.exist;
@@ -363,12 +363,12 @@ describe('Desired Capabilities', function () {
       for (let val of [true, 'string', [], 100]) {
         const [sessionId, caps] = await d.createSession({
           platformName: 'iOS',
-          deviceName: 'Delorean'
+          'appium:deviceName': 'Delorean'
         }, null, val);
         sessionId.should.exist;
         caps.should.eql({
           platformName: 'iOS',
-          deviceName: 'Delorean',
+          'appium:deviceName': 'Delorean',
         });
         await d.deleteSession();
       }

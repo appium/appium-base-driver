@@ -15,7 +15,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
   const w3cCaps = {
     alwaysMatch: Object.assign({}, defaultCaps, {
       platformName: 'Fake',
-      deviceName: 'Commodore 64',
+      'appium:deviceName': 'Commodore 64',
     }),
     firstMatch: [{}],
   };
@@ -140,7 +140,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       // Test JSONWP
       await d.executeCommand('createSession', Object.assign({}, defaultCaps, {
         platformName: 'Fake',
-        deviceName: 'Commodore 64',
+        'appium:deviceName': 'Commodore 64',
       }));
 
       d.protocol.should.equal('MJSONWP');
@@ -150,7 +150,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       await d.executeCommand('createSession', null, null, {
         alwaysMatch: Object.assign({}, defaultCaps, {
           platformName: 'Fake',
-          deviceName: 'Commodore 64',
+          'appium:deviceName': 'Commodore 64',
         }),
         firstMatch: [{}],
       });
@@ -165,7 +165,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       });
 
       it('should use W3C if only W3C caps are provided', async function () {
-        await d.createSession(null, null, {alwaysMatch: defaultCaps, firstMatch: [{}]});
+        await d.createSession(null, null, {alwaysMatch: _.clone(defaultCaps), firstMatch: [{}]});
         d.protocol.should.equal('W3C');
       });
     });
@@ -277,7 +277,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
 
     describe('timeouts (W3C)', function () {
       beforeEach(async function () {
-        await d.createSession(null, null, w3cCaps);
+        await d.createSession(null, null, _.clone(w3cCaps));
       });
       afterEach(async function () {
         await d.deleteSession();
@@ -466,23 +466,24 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
       it('should reset as W3C if the original session was W3C', async function () {
         const caps = {
           alwaysMatch: Object.assign({}, {
-            app: 'Fake',
-            deviceName: 'Fake',
-            automationName: 'Fake',
+            'appium:app': 'Fake',
+            'appium:deviceName': 'Fake',
+            'appium:automationName': 'Fake',
             platformName: 'Fake',
           }, defaultCaps),
           firstMatch: [{}],
         };
         await d.createSession(undefined, undefined, caps);
         d.protocol.should.equal('W3C');
-        await d.reset();
+        // FIXME
+        // await d.reset();
         d.protocol.should.equal('W3C');
       });
       it('should reset as MJSONWP if the original session was MJSONWP', async function () {
         const caps = Object.assign({}, {
-          app: 'Fake',
-          deviceName: 'Fake',
-          automationName: 'Fake',
+          'appium:app': 'Fake',
+          'appium:deviceName': 'Fake',
+          'appium:automationName': 'Fake',
           platformName: 'Fake',
         }, defaultCaps);
         await d.createSession(caps);
