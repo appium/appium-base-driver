@@ -29,4 +29,5 @@ steps:
 
 - script: npm install
 - script: npm test
-- script: npm run e2e-test _FORCE_LOGS=1
+- script: npm run e2e-test
+
