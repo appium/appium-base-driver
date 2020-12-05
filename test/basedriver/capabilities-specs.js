@@ -201,10 +201,9 @@ describe('caps', function () {
         parseCaps(caps, constraints).validatedFirstMatchCaps.should.deep.equal(caps.firstMatch);
       });
 
-      it('returns invalid argument error if the firstMatch[2] is not an object', function () {
+      it('returns no vendor prefix error if the firstMatch[2] does not have it because of no bject', function () {
         caps.alwaysMatch = {};
         caps.firstMatch = [{'appium:foo': 'bar'}, 'foo'];
-        // (() => parseCaps(caps, {})).should.throw(/must be a JSON object/);
         (() => parseCaps(caps, {})).should.throw(/All capabilities should have vendor prefix/);
       });
     });
