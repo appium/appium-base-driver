@@ -362,15 +362,11 @@ describe('Protocol', function () {
 
       it('should not allow create session with desired caps (MJSONWP)', async function () {
         const desiredCapabilities = {a: 'b'};
-        // TODO: should fail
         const {data} = await axios({
           url: `${baseUrl}/session`,
           method: 'POST',
           data: {desiredCapabilities}
         });
-        sessionId = data.sessionId;
-
-        data.status.should.equal(0);
         should.equal(data.value, null);
       });
       it('should fail to create session without capabilities', async function () {
