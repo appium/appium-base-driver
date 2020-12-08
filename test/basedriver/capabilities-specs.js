@@ -204,7 +204,7 @@ describe('caps', function () {
       it('returns no vendor prefix error if the firstMatch[2] does not have it because of no bject', function () {
         caps.alwaysMatch = {};
         caps.firstMatch = [{'appium:foo': 'bar'}, 'foo'];
-        (() => parseCaps(caps, {})).should.throw(/All capabilities should have vendor prefix/);
+        (() => parseCaps(caps, {})).should.throw(/All non-standard capabilities should have a vendor prefix/);
       });
     });
 
