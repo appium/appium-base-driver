@@ -466,8 +466,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         };
         await d.createSession(undefined, undefined, caps);
         d.protocol.should.equal('W3C');
-        // FIXME
-        // await d.reset();
+        await d.reset();
         d.protocol.should.equal('W3C');
       });
     });

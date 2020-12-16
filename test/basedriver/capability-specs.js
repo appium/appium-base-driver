@@ -399,7 +399,7 @@ describe('Desired Capabilities', function () {
     });
 
     it('should raise an error if w3c capabilities is not a plain JSON object', async function () {
-      for (let val of [true, 'string', [], 100]) {
+      for (const val of [true, 'string', [], 100]) {
         try {
           await d.createSession(null, null, val);
         } catch (e) {
