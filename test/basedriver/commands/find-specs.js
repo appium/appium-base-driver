@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import { BaseDriver, ImageElement } from '../../..';
 import { IMAGE_STRATEGY, CUSTOM_STRATEGY, helpers } from '../../../lib/basedriver/commands/find';
 import { imageUtil } from 'appium-support';
+import { W3C_ELEMENT_KEY } from '../../../lib/constants';
 
 
 const should = chai.should();
@@ -57,7 +58,7 @@ describe('finding elements by image', function () {
     }
 
     function basicImgElVerify (imgElProto, driver) {
-      const imgElId = imgElProto.ELEMENT;
+      const imgElId = imgElProto[W3C_ELEMENT_KEY];
       driver._imgElCache.has(imgElId).should.be.true;
       const imgEl = driver._imgElCache.get(imgElId);
       (imgEl instanceof ImageElement).should.be.true;
