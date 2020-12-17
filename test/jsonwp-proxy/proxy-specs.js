@@ -172,13 +172,13 @@ describe('proxy', function () {
       let j = mockProxy({sessionId: '123'});
       let [req, res] = buildReqRes('/element/200/value', 'GET');
       await j.proxyReqRes(req, res);
-      res.sentBody.should.eql({value: 'foobar', sessionId: '123'});
+      res.sentBody.should.eql({value: 'foobar'});
     });
     it('should rewrite the inner session id with sessionId in url', async function () {
       let j = mockProxy({sessionId: '123'});
       let [req, res] = buildReqRes('/session/456/element/200/value', 'POST');
       await j.proxyReqRes(req, res);
-      res.sentBody.should.eql({value: 'foobar', sessionId: '456'});
+      res.sentBody.should.eql({value: 'foobar'});
     });
     it('should pass through urls that do not require session IDs', async function () {
       let j = mockProxy({sessionId: '123'});

@@ -51,19 +51,6 @@ describe('Protocol', function () {
       await mjsonwpServer.close();
     });
 
-    it('should proxy to driver and return valid jsonwp response', async function () {
-      const {data} = await axios({
-        url: `${baseUrl}/session/foo/url`,
-        method: 'POST',
-        data: {url: 'http://google.com'}
-      });
-      data.should.eql({
-        status: 0,
-        value: 'Navigated to: http://google.com',
-        sessionId: 'foo'
-      });
-    });
-
     it('should assume requests without a Content-Type are json requests', async function () {
       const {data} = await axios({
         url: `${baseUrl}/session/foo/url`,
@@ -71,9 +58,7 @@ describe('Protocol', function () {
         data: {url: 'http://google.com'},
       });
       data.should.eql({
-        status: 0,
         value: 'Navigated to: http://google.com',
-        sessionId: 'foo'
       });
     });
 
@@ -89,9 +74,7 @@ describe('Protocol', function () {
         }),
       });
       data.should.eql({
-        status: 0,
         value: 'Navigated to: http://google.com',
-        sessionId: 'foo'
       });
     });
 
@@ -102,9 +85,7 @@ describe('Protocol', function () {
         data: {},
       });
       data.should.eql({
-        status: 0,
         value: 'foo',
-        sessionId: 'foo'
       });
     });
 
@@ -150,9 +131,7 @@ describe('Protocol', function () {
         data: {url: 'http://google.com'}
       });
       data.should.eql({
-        status: 0,
         value: 'Navigated to: http://google.com',
-        sessionId: 'foo'
       });
 
     });
@@ -180,11 +159,9 @@ describe('Protocol', function () {
 
       status.should.equal(501);
       data.should.eql({
-        status: 405,
         value: {
           message: 'Method has not yet been implemented'
-        },
-        sessionId: 'foo'
+        }
       });
     });
 
@@ -198,11 +175,9 @@ describe('Protocol', function () {
 
       status.should.equal(501);
       data.should.eql({
-        status: 405,
         value: {
           message: 'Method has not yet been implemented'
-        },
-        sessionId: 'foo'
+        }
       });
     });
 
@@ -245,12 +220,10 @@ describe('Protocol', function () {
       });
       status.should.equal(500);
       data.should.eql({
-        status: 13,
         value: {
           message: 'An unknown server-side error occurred while processing ' +
                    'the command. Original error: Mishandled Driver Error'
-        },
-        sessionId: 'foo'
+        }
       });
     });
 
@@ -587,9 +560,7 @@ describe('Protocol', function () {
           it('should work if a proxied request returns a response with status 200', async function () {
             app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.json({
-                sessionId: req.params.sessionId,
-                value: req.body,
-                status: 0,
+                value: req.body
               });
             });
 
@@ -604,9 +575,7 @@ describe('Protocol', function () {
           it('should return error if a proxied request returns a MJSONWP error response', async function () {
             app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.status(500).json({
-                sessionId,
-                status: 6,
-                value: 'A problem occurred',
+                value: 'A problem occurred'
               });
             });
             const {status, data} = await axios({
@@ -645,9 +614,7 @@ describe('Protocol', function () {
           it('should return error if a proxied request returns a MJSONWP error response but HTTP status code is 200', async function () {
             app.post('/session/:sessionId/perform-actions', (req, res) => {
               res.status(200).json({
-                sessionId: 'Fake Session Id',
-                status: 7,
-                value: 'A problem occurred',
+                value: 'A problem occurred'
               });
             });
             const {status, data} = await axios({
@@ -724,9 +691,7 @@ describe('Protocol', function () {
         method: 'POST',
       });
       data.should.eql({
-        status: 0,
-        value: null,
-        sessionId: 'foo'
+        value: null
       });
     });
 
@@ -735,9 +700,7 @@ describe('Protocol', function () {
         url: `${baseUrl}/session/foo/element/bar/text`,
       });
       data.should.eql({
-        status: 0,
-        value: '',
-        sessionId: 'foo'
+        value: ''
       });
     });
 
@@ -750,12 +713,10 @@ describe('Protocol', function () {
 
       status.should.equal(500);
       data.should.eql({
-        status: 13,
         value: {
           message: 'An unknown server-side error occurred while processing ' +
                    'the command. Original error: Too Fresh!'
-        },
-        sessionId: 'foo'
+        }
       });
     });
 
@@ -767,11 +728,9 @@ describe('Protocol', function () {
 
       status.should.equal(404);
       data.should.eql({
-        status: 6,
         value: {
           message: 'A session is either terminated or not started'
-        },
-        sessionId: 'foo'
+        }
       });
     });
   });
@@ -860,12 +819,10 @@ describe('Protocol', function () {
 
       status.should.equal(500);
       data.should.eql({
-        status: 13,
         value: {
           message: 'An unknown server-side error occurred while processing ' +
                    'the command. Original error: Too Fresh!'
-        },
-        sessionId
+        }
       });
     });
 
@@ -914,13 +871,11 @@ describe('Protocol', function () {
 
       status.should.equal(500);
       data.should.eql({
-        status: 13,
         value: {
           message: 'An unknown server-side error occurred while processing ' +
                    'the command. Original error: Trying to proxy to a JSONWP ' +
                    'server but driver is unable to proxy'
-        },
-        sessionId
+        }
       });
     });
 
@@ -937,13 +892,11 @@ describe('Protocol', function () {
 
       status.should.equal(500);
       data.should.eql({
-        status: 13,
         value: {
           message: 'An unknown server-side error occurred while processing ' +
                    'the command. Original error: Could not proxy. Proxy ' +
                    'error: foo'
-        },
-        sessionId
+        }
       });
     });
 
@@ -961,11 +914,9 @@ describe('Protocol', function () {
 
       status.should.equal(500);
       data.should.eql({
-        status: 35,
         value: {
           message: 'No such context found.'
-        },
-        sessionId: 'foo'
+        }
       });
     });
 
@@ -993,9 +944,7 @@ describe('Protocol', function () {
 
       status.should.equal(200);
       data.should.eql({
-        status: 0,
-        value: 'Navigated to: http://google.com',
-        sessionId
+        value: 'Navigated to: http://google.com'
       });
     });
 
@@ -1033,9 +982,7 @@ describe('Protocol', function () {
 
       status.should.equal(200);
       data.should.eql({
-        status: 0,
-        value: "I'm fine",
-        sessionId: null
+        value: "I'm fine"
       });
     });
 
