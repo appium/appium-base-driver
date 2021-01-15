@@ -4,7 +4,6 @@ import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import { BaseDriver, ImageElement } from '../../..';
 import { IMAGE_STRATEGY, CUSTOM_STRATEGY, helpers } from '../../../lib/basedriver/commands/find';
-import { MATCH_TEMPLATE_MULTIPLE_MODE } from '../../../lib/basedriver/commands/images';
 import { imageUtil } from 'appium-support';
 
 
@@ -76,7 +75,7 @@ describe('finding elements by image', function () {
     it('should find image elements happypath', async function () {
       const d = new TestDriver();
       const {compareStub} = basicStub(d);
-      compareStub.withArgs(MATCH_TEMPLATE_MULTIPLE_MODE).returns([{rect, score}]);
+      compareStub.returns([{rect, score}]);
 
       const els = await d.findByImage(template, {multiple: true});
       els.should.have.length(1);
