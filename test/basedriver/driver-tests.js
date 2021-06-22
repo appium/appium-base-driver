@@ -400,6 +400,89 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         d.shouldValidateCaps = false;
         await d.executeCommand('createSession', defaultCaps);
       });
+
+      describe('#instrumentation', function () { //eslint-disable-line mocha/no-exclusive-tests
+        it('should have instrumentation property', function () {
+          should.exist(d.instrumentation);
+          d.instrumentation.should.be.eql({});
+        });
+
+        describe('#wrappedInstrumentation', function () {
+          it('should return a wrapped function', function () {
+            const dummyFunction = () => {};
+            const eventName = 'functionToBeInstrumented';
+            d.wrapInstrumentation(eventName, dummyFunction).should.be.an.instanceof(Function);
+          });
+
+          it('should instrument the wrapped sync function', function () { //eslint-disable-line mocha/no-exclusive-tests
+            const dummyFunction = () => {};
+            const eventName = 'functionToBeInstrumented';
+            const wrappedFunction = d.wrapInstrumentation(eventName, dummyFunction);
+            wrappedFunction();
+            should.exist(d.instrumentation);
+            should.exist(d.instrumentation[eventName]);
+            should.exist(d.instrumentation[eventName].duration);
+            d.instrumentation[eventName].status.should.be.true;
+            d.instrumentation[eventName].options.should.be.eql({});
+            d.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(d.instrumentation[eventName].parent);
+          });
+
+          it('should instrument the wrapped async function', async function () { //eslint-disable-line mocha/no-exclusive-tests
+            const dummyFunction = async () => {};
+            const eventName = 'functionToBeInstrumented';
+            const wrappedFunction = d.wrapInstrumentationAsync(eventName, dummyFunction);
+            await wrappedFunction();
+            should.exist(d.instrumentation);
+            should.exist(d.instrumentation[eventName]);
+            should.exist(d.instrumentation[eventName].duration);
+            d.instrumentation[eventName].status.should.be.true;
+            d.instrumentation[eventName].options.should.be.eql({});
+            d.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(d.instrumentation[eventName].parent);
+          });
+        });
+
+        describe('#snippetInstrumentation', function () {
+          it('should instrument snippet', function () { //eslint-disable-line mocha/no-exclusive-tests
+            const eventName = 'dummyEvent';
+            d.instrumentEventStart(eventName);
+            //snippet
+            d.instrumentEventEnd(eventName);
+            should.exist(d.instrumentation);
+            should.exist(d.instrumentation[eventName]);
+            should.exist(d.instrumentation[eventName].duration);
+            d.instrumentation[eventName].status.should.be.true;
+            d.instrumentation[eventName].options.should.be.eql({});
+            d.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(d.instrumentation[eventName].parent);
+          });
+
+          it('should instrument nested snippet', function () { //eslint-disable-line mocha/no-exclusive-tests
+            const parentEventName = 'dummyParentEvent';
+            const childEventName = 'dummyChildEvent';
+            d.instrumentEventStart(parentEventName);
+            d.instrumentEventStart(childEventName);
+            d.instrumentEventEnd(childEventName);
+            d.instrumentEventEnd(parentEventName);
+            should.exist(d.instrumentation);
+            should.exist(d.instrumentation[parentEventName]);
+            should.exist(d.instrumentation[parentEventName].duration);
+            should.exist(d.instrumentation[parentEventName].children);
+            should.equal(d.instrumentation[parentEventName].children.length, 1);
+            d.instrumentation[parentEventName].status.should.be.true;
+            d.instrumentation[parentEventName].options.should.be.eql({});
+            //children assertions
+            should.equal(d.instrumentation[parentEventName].children[0].eventName, childEventName);
+            should.exist(d.instrumentation[parentEventName].children[0].parent);
+            d.instrumentation[parentEventName].should.eql(d.instrumentation[parentEventName].children[0].parent);
+            d.instrumentation[parentEventName].children[0].children.should.be.eql([]);
+            d.instrumentation[parentEventName].children[0].options.should.be.eql({});
+            should.exist(d.instrumentation[parentEventName].children[0].duration);
+          });
+        });
+      });
+
       describe('#eventHistory', function () {
         it('should have an eventHistory property', function () {
           should.exist(d.eventHistory);
