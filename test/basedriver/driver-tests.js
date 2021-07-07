@@ -401,84 +401,149 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         await d.executeCommand('createSession', defaultCaps);
       });
 
-      describe('#instrumentation', function () { //eslint-disable-line mocha/no-exclusive-tests
+      describe('#instrumentation', function () {
+        let baseDriver;
+        beforeEach(async function () {
+          baseDriver = new DriverClass({'allowInstrumentation': true});
+          beforeStartTime = Date.now();
+          baseDriver.shouldValidateCaps = false;
+          await baseDriver.executeCommand('createSession', defaultCaps);
+        });
         it('should have instrumentation property', function () {
-          should.exist(d.instrumentation);
-          d.instrumentation.should.be.eql({});
+          should.exist(baseDriver.instrumentation);
+          baseDriver.instrumentation.should.be.eql({});
+        });
+
+        describe('instrumentation disabled', function () {
+          let baseDriver;
+          beforeEach(async function () {
+            baseDriver = new DriverClass();
+            beforeStartTime = Date.now();
+            baseDriver.shouldValidateCaps = false;
+            await baseDriver.executeCommand('createSession', defaultCaps);
+          });
+          describe('#wrappedInstrumentation disabled', function () {
+            it('should return a wrapped function', function () {
+              const dummyFunction = () => {};
+              const eventName = 'functionToBeInstrumented';
+              baseDriver.wrapInstrumentation(eventName, dummyFunction).should.be.an.instanceof(Function);
+            });
+
+            it('should instrument the wrapped sync function', function () { //eslint-disable-line mocha/no-exclusive-tests
+              const dummyFunction = () => {};
+              const eventName = 'functionToBeInstrumented';
+              const wrappedFunction = baseDriver.wrapInstrumentation(eventName, dummyFunction);
+              wrappedFunction();
+              should.exist(baseDriver.instrumentation);
+              should.not.exist(baseDriver.instrumentation[eventName]);
+            });
+
+            it('should instrument the wrapped async function', async function () { //eslint-disable-line mocha/no-exclusive-tests
+              const dummyFunction = async () => {};
+              const eventName = 'functionToBeInstrumented';
+              const wrappedFunction = baseDriver.wrapInstrumentationAsync(eventName, dummyFunction);
+              await wrappedFunction();
+              should.exist(baseDriver.instrumentation);
+              should.not.exist(baseDriver.instrumentation[eventName]);
+            });
+          });
+
+          describe('#snippetInstrumentation disabled', function () {
+            it('should instrument snippet', function () {
+              const eventName = 'dummyEvent';
+              baseDriver.instrumentEventStart(eventName);
+              //snippet
+              baseDriver.instrumentEventEnd(eventName);
+              should.exist(baseDriver.instrumentation);
+              should.not.exist(baseDriver.instrumentation[eventName]);
+            });
+
+            it('should instrument nested snippet', function () {
+              const parentEventName = 'dummyParentEvent';
+              const childEventName = 'dummyChildEvent';
+              baseDriver.instrumentEventStart(parentEventName);
+              baseDriver.instrumentEventStart(childEventName);
+              baseDriver.instrumentEventEnd(childEventName);
+              baseDriver.instrumentEventEnd(parentEventName);
+              should.exist(baseDriver.instrumentation);
+              should.not.exist(baseDriver.instrumentation[parentEventName]);
+            });
+          });
+
         });
 
         describe('#wrappedInstrumentation', function () {
           it('should return a wrapped function', function () {
             const dummyFunction = () => {};
             const eventName = 'functionToBeInstrumented';
-            d.wrapInstrumentation(eventName, dummyFunction).should.be.an.instanceof(Function);
+            baseDriver.wrapInstrumentation(eventName, dummyFunction).should.be.an.instanceof(Function);
           });
 
           it('should instrument the wrapped sync function', function () { //eslint-disable-line mocha/no-exclusive-tests
             const dummyFunction = () => {};
             const eventName = 'functionToBeInstrumented';
-            const wrappedFunction = d.wrapInstrumentation(eventName, dummyFunction);
+            const wrappedFunction = baseDriver.wrapInstrumentation(eventName, dummyFunction);
             wrappedFunction();
-            should.exist(d.instrumentation);
-            should.exist(d.instrumentation[eventName]);
-            should.exist(d.instrumentation[eventName].duration);
-            d.instrumentation[eventName].status.should.be.true;
-            d.instrumentation[eventName].options.should.be.eql({});
-            d.instrumentation[eventName].children.should.be.eql([]);
-            should.not.exist(d.instrumentation[eventName].parent);
+            should.exist(baseDriver.instrumentation);
+            should.exist(baseDriver.instrumentation[eventName]);
+            should.exist(baseDriver.instrumentation[eventName].duration);
+            baseDriver.instrumentation[eventName].status.should.be.true;
+            baseDriver.instrumentation[eventName].options.should.be.eql({});
+            baseDriver.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(baseDriver.instrumentation[eventName].parent);
           });
 
           it('should instrument the wrapped async function', async function () { //eslint-disable-line mocha/no-exclusive-tests
             const dummyFunction = async () => {};
             const eventName = 'functionToBeInstrumented';
-            const wrappedFunction = d.wrapInstrumentationAsync(eventName, dummyFunction);
+            const wrappedFunction = baseDriver.wrapInstrumentationAsync(eventName, dummyFunction);
             await wrappedFunction();
-            should.exist(d.instrumentation);
-            should.exist(d.instrumentation[eventName]);
-            should.exist(d.instrumentation[eventName].duration);
-            d.instrumentation[eventName].status.should.be.true;
-            d.instrumentation[eventName].options.should.be.eql({});
-            d.instrumentation[eventName].children.should.be.eql([]);
-            should.not.exist(d.instrumentation[eventName].parent);
+            should.exist(baseDriver.instrumentation);
+            should.exist(baseDriver.instrumentation[eventName]);
+            should.exist(baseDriver.instrumentation[eventName].duration);
+            baseDriver.instrumentation[eventName].status.should.be.true;
+            baseDriver.instrumentation[eventName].options.should.be.eql({});
+            baseDriver.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(baseDriver.instrumentation[eventName].parent);
           });
         });
 
         describe('#snippetInstrumentation', function () {
           it('should instrument snippet', function () { //eslint-disable-line mocha/no-exclusive-tests
             const eventName = 'dummyEvent';
-            d.instrumentEventStart(eventName);
+            baseDriver.instrumentEventStart(eventName);
             //snippet
-            d.instrumentEventEnd(eventName);
-            should.exist(d.instrumentation);
-            should.exist(d.instrumentation[eventName]);
-            should.exist(d.instrumentation[eventName].duration);
-            d.instrumentation[eventName].status.should.be.true;
-            d.instrumentation[eventName].options.should.be.eql({});
-            d.instrumentation[eventName].children.should.be.eql([]);
-            should.not.exist(d.instrumentation[eventName].parent);
+            baseDriver.instrumentEventEnd(eventName);
+            should.exist(baseDriver.instrumentation);
+            should.exist(baseDriver.instrumentation[eventName]);
+            should.exist(baseDriver.instrumentation[eventName].duration);
+            baseDriver.instrumentation[eventName].status.should.be.true;
+            baseDriver.instrumentation[eventName].options.should.be.eql({});
+            baseDriver.instrumentation[eventName].children.should.be.eql([]);
+            should.not.exist(baseDriver.instrumentation[eventName].parent);
           });
 
           it('should instrument nested snippet', function () { //eslint-disable-line mocha/no-exclusive-tests
             const parentEventName = 'dummyParentEvent';
             const childEventName = 'dummyChildEvent';
-            d.instrumentEventStart(parentEventName);
-            d.instrumentEventStart(childEventName);
-            d.instrumentEventEnd(childEventName);
-            d.instrumentEventEnd(parentEventName);
-            should.exist(d.instrumentation);
-            should.exist(d.instrumentation[parentEventName]);
-            should.exist(d.instrumentation[parentEventName].duration);
-            should.exist(d.instrumentation[parentEventName].children);
-            should.equal(d.instrumentation[parentEventName].children.length, 1);
-            d.instrumentation[parentEventName].status.should.be.true;
-            d.instrumentation[parentEventName].options.should.be.eql({});
+            baseDriver.instrumentEventStart(parentEventName);
+            baseDriver.instrumentEventStart(childEventName);
+            baseDriver.instrumentEventEnd(childEventName);
+            baseDriver.instrumentEventEnd(parentEventName);
+            should.exist(baseDriver.instrumentation);
+            should.exist(baseDriver.instrumentation[parentEventName]);
+            should.exist(baseDriver.instrumentation[parentEventName].duration);
+            should.exist(baseDriver.instrumentation[parentEventName].children);
+            should.equal(baseDriver.instrumentation[parentEventName].children.length, 1);
+            baseDriver.instrumentation[parentEventName].status.should.be.true;
+            baseDriver.instrumentation[parentEventName].options.should.be.eql({});
             //children assertions
-            should.equal(d.instrumentation[parentEventName].children[0].eventName, childEventName);
-            should.exist(d.instrumentation[parentEventName].children[0].parent);
-            d.instrumentation[parentEventName].should.eql(d.instrumentation[parentEventName].children[0].parent);
-            d.instrumentation[parentEventName].children[0].children.should.be.eql([]);
-            d.instrumentation[parentEventName].children[0].options.should.be.eql({});
-            should.exist(d.instrumentation[parentEventName].children[0].duration);
+            should.equal(baseDriver.instrumentation[parentEventName].children[0].eventName, childEventName);
+            should.exist(baseDriver.instrumentation[parentEventName].children[0].parent);
+            baseDriver.instrumentation[parentEventName].should.eql(baseDriver.instrumentation[parentEventName].children[0].parent);
+            baseDriver.instrumentation[parentEventName].children[0].children.should.be.eql([]);
+            baseDriver.instrumentation[parentEventName].children[0].options.should.be.eql({});
+            should.exist(baseDriver.instrumentation[parentEventName].children[0].duration);
           });
         });
       });
@@ -545,6 +610,7 @@ function baseDriverUnitTests (DriverClass, defaultCaps = {}) {
         });
       });
     });
+
     describe('.reset', function () {
       it('should reset as W3C if the original session was W3C', async function () {
         const caps = {

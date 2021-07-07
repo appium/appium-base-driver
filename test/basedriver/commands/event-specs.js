@@ -9,13 +9,13 @@ chai.use(chaiAsPromised);
 describe('logging custom events', function () {
   it('should allow logging of events', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.should.eql({commands: []});
     await d.logCustomEvent('myorg', 'myevent');
-    _.keys(d._meta._eventHistory).should.eql(['commands', 'myorg:myevent']);
+    _.keys(d._meta.eventHistory).should.eql(['commands', 'myorg:myevent']);
   });
   it('should get all events including custom ones', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.should.eql({commands: []});
     d.logEvent('appiumEvent');
     await d.logCustomEvent('myorg', 'myevent');
     const events = await d.getLogEvents();
@@ -26,8 +26,8 @@ describe('logging custom events', function () {
 describe('#getLogEvents', function () {
   it('should allow to get all events', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory.testCommand = ['1', '2', '3'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.testCommand = ['1', '2', '3'];
     await d.getLogEvents().should.eql({
       commands: [], testCommand: ['1', '2', '3']
     });
@@ -35,8 +35,8 @@ describe('#getLogEvents', function () {
 
   it('should filter with testCommand', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory.testCommand = ['1', '2', '3'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.testCommand = ['1', '2', '3'];
     await d.getLogEvents('testCommand').should.eql({
       testCommand: ['1', '2', '3']
     });
@@ -44,16 +44,16 @@ describe('#getLogEvents', function () {
 
   it('should not filter with wrong but can be a part of the event name', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory.testCommand = ['1', '2', '3'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.testCommand = ['1', '2', '3'];
     await d.getLogEvents('testCommandDummy').should.eql({});
   });
 
   it('should filter with multiple event keys', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory.testCommand = ['1', '2', '3'];
-    d._meta._eventHistory.testCommand2 = ['4', '5'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.testCommand = ['1', '2', '3'];
+    d._meta.eventHistory.testCommand2 = ['4', '5'];
     await d.getLogEvents(['testCommand', 'testCommand2']).should.eql({
       testCommand: ['1', '2', '3'], testCommand2: ['4', '5']
     });
@@ -61,8 +61,8 @@ describe('#getLogEvents', function () {
 
   it('should filter with custom events', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory['custom:appiumEvent'] = ['1', '2', '3'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory['custom:appiumEvent'] = ['1', '2', '3'];
     await d.getLogEvents(['custom:appiumEvent']).should.eql({
       'custom:appiumEvent': ['1', '2', '3']
     });
@@ -70,8 +70,8 @@ describe('#getLogEvents', function () {
 
   it('should not filter with no existed event name', async function () {
     const d = new BaseDriver();
-    d._meta._eventHistory.should.eql({commands: []});
-    d._meta._eventHistory.testCommand = ['1', '2', '3'];
+    d._meta.eventHistory.should.eql({commands: []});
+    d._meta.eventHistory.testCommand = ['1', '2', '3'];
     await d.getLogEvents(['noEventName']).should.eql({});
   });
 });
