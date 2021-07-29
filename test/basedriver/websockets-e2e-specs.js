@@ -51,12 +51,12 @@ describe('Websockets (e2e)', function () {
           req.connection.remoteAddress.should.not.be.empty;
         });
         client.on('message', (data) => {
-          data.should.eql(WS_DATA);
+          data.toString().should.eql(WS_DATA);
           resolve();
         });
         client.on('error', reject);
         setTimeout(() => reject(new Error('No websocket messages have been received after the timeout')),
-                   timeout);
+          timeout);
       });
 
       (await baseServer.removeWebSocketHandler(endpoint)).should.be.true;
@@ -65,7 +65,7 @@ describe('Websockets (e2e)', function () {
         const client = new WebSocket(`ws://localhost:${PORT}${endpoint}`);
         client.on('message', (data) =>
           reject(new Error(`No websocket messages are expected after the handler ` +
-                           `has been removed. '${data}' is received instead. `))
+            `has been removed. '${data?.toString()}' is received instead. `))
         );
         client.on('error', resolve);
         setTimeout(resolve, timeout);
