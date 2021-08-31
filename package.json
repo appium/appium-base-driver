@@ -4,7 +4,7 @@
   "keywords": [
     "appium"
   ],
-  "version": "7.7.0",
+  "version": "7.10.0",
   "author": "appium",
   "license": "Apache-2.0",
   "repository": {
@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.0.0",
-    "appium-support": "^2.52.0",
+    "appium-support": "^2.54.1",
     "async-lock": "^1.0.0",
     "asyncbox": "^2.3.1",
     "axios": "^0.x",
@@ -53,7 +53,7 @@
     "source-map-support": "^0.x",
     "validate.js": "^0.13.0",
     "webdriverio": "^6.0.2",
-    "ws": "^7.0.0"
+    "ws": "^8.0.0"
   },
   "scripts": {
     "clean": "rm -rf node_modules && rm -f package-lock.json && npm install",
