@@ -106,6 +106,9 @@ describe('helpers', function () {
       sandbox.stub(fs, 'hash').resolves('0xDEADBEEF');
       sandbox.stub(fs, 'glob').resolves(['/path/to/an.apk']);
       sandbox.stub(fs, 'rimraf').resolves();
+      sandbox.stub(fs, 'stat').resolves({
+        isDirectory: () => false,
+      });
       sandbox.stub(tempDir, 'openDir').resolves('/some/dir');
     });
 
